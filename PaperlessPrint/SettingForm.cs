@@ -7,6 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using PaperlessPrint.Utiles;
+using PaperlessPrint.Model;
 
 namespace PaperlessPrint
 {
@@ -16,5 +18,32 @@ namespace PaperlessPrint
         {
             InitializeComponent();
         }
+
+        private void SettingForm_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            //Read form UI
+            Configuration config = new Configuration
+            {
+                TabletAddress = this.txtTabletAddress.Text.Trim(),
+            };
+
+            ConfigurationHelper.SaveSettings(config);
+            this.Close();
+        }
+
+
+
+
+        #region Private Functions
+
+        
+
+        #endregion
+
     }
 }

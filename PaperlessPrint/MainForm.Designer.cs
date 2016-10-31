@@ -28,59 +28,74 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.button1 = new System.Windows.Forms.Button();
-            this.button2 = new System.Windows.Forms.Button();
-            this.button3 = new System.Windows.Forms.Button();
+            this.btnTabletShow = new System.Windows.Forms.Button();
+            this.btnPrint = new System.Windows.Forms.Button();
+            this.btnClose = new System.Windows.Forms.Button();
+            this.btnConfirmSign = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // button1
+            // btnTabletShow
             // 
-            this.button1.Location = new System.Drawing.Point(71, 40);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(84, 39);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "终端确认";
-            this.button1.UseVisualStyleBackColor = true;
+            this.btnTabletShow.Location = new System.Drawing.Point(73, 34);
+            this.btnTabletShow.Name = "btnTabletShow";
+            this.btnTabletShow.Size = new System.Drawing.Size(84, 39);
+            this.btnTabletShow.TabIndex = 0;
+            this.btnTabletShow.Text = "客户确认";
+            this.btnTabletShow.UseVisualStyleBackColor = true;
+            this.btnTabletShow.Click += new System.EventHandler(this.btnTabletShow_Click);
             // 
-            // button2
+            // btnPrint
             // 
-            this.button2.Location = new System.Drawing.Point(71, 114);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(84, 39);
-            this.button2.TabIndex = 1;
-            this.button2.Text = "物理打印";
-            this.button2.UseVisualStyleBackColor = true;
+            this.btnPrint.Location = new System.Drawing.Point(73, 188);
+            this.btnPrint.Name = "btnPrint";
+            this.btnPrint.Size = new System.Drawing.Size(84, 39);
+            this.btnPrint.TabIndex = 2;
+            this.btnPrint.Text = "物理打印";
+            this.btnPrint.UseVisualStyleBackColor = true;
             // 
-            // button3
+            // btnClose
             // 
-            this.button3.Location = new System.Drawing.Point(71, 188);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(84, 39);
-            this.button3.TabIndex = 2;
-            this.button3.Text = "完成";
-            this.button3.UseVisualStyleBackColor = true;
+            this.btnClose.Location = new System.Drawing.Point(73, 265);
+            this.btnClose.Name = "btnClose";
+            this.btnClose.Size = new System.Drawing.Size(84, 39);
+            this.btnClose.TabIndex = 3;
+            this.btnClose.Text = "完成";
+            this.btnClose.UseVisualStyleBackColor = true;
+            this.btnClose.Click += new System.EventHandler(this.btnClose_Click);
+            // 
+            // btnConfirmSign
+            // 
+            this.btnConfirmSign.Location = new System.Drawing.Point(73, 111);
+            this.btnConfirmSign.Name = "btnConfirmSign";
+            this.btnConfirmSign.Size = new System.Drawing.Size(84, 39);
+            this.btnConfirmSign.TabIndex = 1;
+            this.btnConfirmSign.Text = "签字确认";
+            this.btnConfirmSign.UseVisualStyleBackColor = true;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(241, 262);
-            this.Controls.Add(this.button3);
-            this.Controls.Add(this.button2);
-            this.Controls.Add(this.button1);
+            this.ClientSize = new System.Drawing.Size(235, 335);
+            this.Controls.Add(this.btnConfirmSign);
+            this.Controls.Add(this.btnClose);
+            this.Controls.Add(this.btnPrint);
+            this.Controls.Add(this.btnTabletShow);
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.Text = "无纸化签名";
             this.Load += new System.EventHandler(this.MainForm_Load);
+            this.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.MainForm_MouseDoubleClick);
             this.ResumeLayout(false);
 
         }
 
         #endregion
 
-        private System.Windows.Forms.Button button1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button3;
+        private System.Windows.Forms.Button btnTabletShow;
+        private System.Windows.Forms.Button btnPrint;
+        private System.Windows.Forms.Button btnClose;
+        private System.Windows.Forms.Button btnConfirmSign;
     }
 }
 
