@@ -10,13 +10,18 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using PaperlessPrint.Common;
+using System.Globalization;
+using Common;
+using Common.Utiles;
+using Common.TCPServer;
+
 
 namespace Tablet
 {
     /// <summary>
     /// http://www.cnblogs.com/jamesping/articles/2071932.html
     /// https://github.com/LiveOrDevTrying/TcpAsyncServerClient/blob/master/AsynchronousServer.cs
+    /// https://github.com/gaochundong/Gimela/blob/master/src/Foundation/Net/Gimela.Net.Sockets/TCP
     /// 开始用UDP 后考虑文件传输改用Tcp异步1对n方式
     /// </summary>
     public partial class MainForm : Form
@@ -24,13 +29,9 @@ namespace Tablet
 
         # region Fields
 
-        const bool Debug = true;
-        Socket listener;
-
-        public static ManualResetEvent allDone = new ManualResetEvent(false);
+        private const bool Debug = true;
+        private AsyncTcpServer server;
         
-        Socket udpServer;
-        String clientIP;
 
         #endregion
 
@@ -38,6 +39,7 @@ namespace Tablet
         public MainForm()
         {
             InitializeComponent();
+            CheckForIllegalCrossThreadCalls = false;
         }
 
 
@@ -53,14 +55,17 @@ namespace Tablet
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             //关闭Soket
-            listener.Close();
+            server.Stop();
+            server.Dispose();
         }
 
 
         private void btnTest_Click(object sender, EventArgs e)
         {
-            if(txtTestContent.Text != null)
-                SendMsg(txtTestContent.Text);
+            if (txtTestContent.Text != null)
+            {
+                server.SendAll(txtTestContent.Text);
+            }
         }
 
         #endregion
@@ -70,67 +75,51 @@ namespace Tablet
 
         #region Private Functions
 
-        /// <summary>
-        /// 接收回调函数
-        /// </summary>
-        /// <param name="ar"></param>
-        
-
-
-        private void ReciveMsg()
-        {
-            while (true)
-            {
-                EndPoint point = new IPEndPoint(IPAddress.Any, 0);      //用来保存发送方的ip和端口号
-                byte[] buffer = new byte[1024];
-                int length = udpServer.ReceiveFrom(buffer, ref point);  //接收数据报
-                string message = Encoding.UTF8.GetString(buffer, 0, length);
-                Console.WriteLine(point.ToString() + message);
-                Log("收到(" + point.ToString() + "):" + message);
-            }
-        }
-
-        private void SendMsg(String msg)
-        {
-            EndPoint point = new IPEndPoint(IPAddress.Parse("169.254.202.67"), 6000);         //目标IP
-            //while (true)
-            {
-                //string msg = Console.ReadLine();
-                udpServer.SendTo(Encoding.UTF8.GetBytes(msg), point);
-            }
-        }
+       
 
         private void Log(String txt)
         {
             toolStripStatusLabel1.Text = txt;
-            txtLog.Text += DateTime.Now.ToString("hh:mm:ss") + " " + txt + "\r\n";
+            txtLog.Text += DateTime.Now.ToString("HH:mm:ss") + " " + txt + "\r\n";
         }
 
         #endregion
 
 
 
-        #region Tcp Server
+        #region TCP Server
+
+        
 
         private void InitServer()
         {
-            //打开端口 监听
-            listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            IPEndPoint localEndPoint = new IPEndPoint(IPAddress.Parse("127.0.0.1"), Constants.TcpPort); //TODO
-            listener.Bind(localEndPoint);
-            listener.Listen(Constants.MaxClients);
-            listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
-            Log("网络启动:" + localEndPoint.Address.ToString() + ":" +Constants.TcpPort);
+            server = new AsyncTcpServer(Constants.TcpPort);
+            server.Encoding = Encoding.UTF8;
+            server.ClientConnected += new EventHandler<TcpClientConnectedEventArgs>(server_ClientConnected);
+            server.ClientDisconnected += new EventHandler<TcpClientDisconnectedEventArgs>(server_ClientDisconnected);
+            server.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(server_PlaintextReceived);
+            server.Start();
+            Log("网络启动:" + Constants.TcpPort);
         }
 
-        private void AcceptCallback(IAsyncResult ar)
+        private void server_ClientConnected(object sender, TcpClientConnectedEventArgs e)
         {
-            try
+            Log(string.Format(CultureInfo.InvariantCulture, "TCP client {0} has connected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
+        }
+
+        private void server_ClientDisconnected(object sender, TcpClientDisconnectedEventArgs e)
+        {
+            Log(string.Format(CultureInfo.InvariantCulture, "TCP client {0} has disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
+        }
+
+        private void server_PlaintextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
+        {
+            if (e.Datagram != "Received")
             {
-                TcpListener l = (TcpListener)ar.AsyncState;
-                Socket client = l.EndAcceptSocket(ar);
+                Console.Write(string.Format("Client : {0} --> ", e.TcpClient.Client.RemoteEndPoint.ToString()));
+                Console.WriteLine(string.Format("{0}", e.Datagram));
+                server.Send(e.TcpClient, "Server has received you text : " + e.Datagram);
             }
-            catch { }
         }
 
         #endregion
@@ -140,16 +129,4 @@ namespace Tablet
 
     }
 
-
-    public class StateObject
-    {
-        // Client  socket.
-        public Socket WorkSocket = null;
-        // Size of receive buffer.
-        public const int BufferSize = 1024;
-        // Receive buffer.
-        public byte[] Buffer = new byte[BufferSize];
-        // Received data string.
-        public StringBuilder Sb = new StringBuilder();
-    }
 }

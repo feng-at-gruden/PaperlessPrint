@@ -42,7 +42,17 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Model\Configuration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TCPServer\AsyncTcpClient.cs" />
+    <Compile Include="TCPServer\AsyncTcpServer.cs" />
+    <Compile Include="TCPServer\TcpClientConnectedEventArgs.cs" />
+    <Compile Include="TCPServer\TcpClientDisconnectedEventArgs.cs" />
+    <Compile Include="TCPServer\TcpClientState.cs" />
+    <Compile Include="TCPServer\TcpDatagramReceivedEventArgs.cs" />
+    <Compile Include="TCPServer\TcpServerConnectedEventArgs.cs" />
+    <Compile Include="TCPServer\TcpServerDisconnectedEventArgs.cs" />
+    <Compile Include="TCPServer\TcpServerExceptionOccurredEventArgs.cs" />
     <Compile Include="Utiles\ConfigurationHelper.cs" />
+    <Compile Include="Utiles\NetworkHelper.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
