@@ -16,6 +16,7 @@ namespace PaperlessPrint.Common.Model
         public String FTPPassword { get; set; }
 
 
+
     }
 
 
