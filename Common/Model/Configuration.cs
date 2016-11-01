@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PaperlessPrint.Model
+namespace PaperlessPrint.Common.Model
 {
     public class Configuration
     {

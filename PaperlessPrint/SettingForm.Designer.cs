@@ -39,6 +39,8 @@
             this.label5 = new System.Windows.Forms.Label();
             this.txtFtpPassword = new System.Windows.Forms.TextBox();
             this.btnSave = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
+            this.txtTabletPort = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -59,7 +61,7 @@
             this.txtTabletAddress.MaxLength = 15;
             this.txtTabletAddress.Name = "txtTabletAddress";
             this.txtTabletAddress.Size = new System.Drawing.Size(114, 21);
-            this.txtTabletAddress.TabIndex = 1;
+            this.txtTabletAddress.TabIndex = 0;
             this.txtTabletAddress.Text = "192.168.1.1";
             // 
             // label2
@@ -80,7 +82,7 @@
             this.txtTempFileFolder.MaxLength = 15;
             this.txtTempFileFolder.Name = "txtTempFileFolder";
             this.txtTempFileFolder.Size = new System.Drawing.Size(177, 21);
-            this.txtTempFileFolder.TabIndex = 3;
+            this.txtTempFileFolder.TabIndex = 2;
             this.txtTempFileFolder.Text = "\\\\192.168.1.1\\Paperless\\tmp";
             // 
             // label3
@@ -101,7 +103,7 @@
             this.txtFtpAddress.MaxLength = 15;
             this.txtFtpAddress.Name = "txtFtpAddress";
             this.txtFtpAddress.Size = new System.Drawing.Size(114, 21);
-            this.txtFtpAddress.TabIndex = 5;
+            this.txtFtpAddress.TabIndex = 3;
             this.txtFtpAddress.Text = "192.168.1.202";
             // 
             // label4
@@ -122,7 +124,7 @@
             this.txtFtpUserName.MaxLength = 15;
             this.txtFtpUserName.Name = "txtFtpUserName";
             this.txtFtpUserName.Size = new System.Drawing.Size(83, 21);
-            this.txtFtpUserName.TabIndex = 7;
+            this.txtFtpUserName.TabIndex = 4;
             this.txtFtpUserName.Text = "192.168.1.202";
             // 
             // label5
@@ -144,24 +146,47 @@
             this.txtFtpPassword.Name = "txtFtpPassword";
             this.txtFtpPassword.PasswordChar = '*';
             this.txtFtpPassword.Size = new System.Drawing.Size(83, 21);
-            this.txtFtpPassword.TabIndex = 9;
+            this.txtFtpPassword.TabIndex = 5;
             this.txtFtpPassword.Text = "123456";
             // 
             // btnSave
             // 
-            this.btnSave.Location = new System.Drawing.Point(167, 207);
+            this.btnSave.Location = new System.Drawing.Point(178, 207);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(75, 23);
-            this.btnSave.TabIndex = 10;
+            this.btnSave.TabIndex = 6;
             this.btnSave.Text = "保存";
             this.btnSave.UseVisualStyleBackColor = true;
             this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(287, 25);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(35, 12);
+            this.label6.TabIndex = 11;
+            this.label6.Text = "端口:";
+            // 
+            // txtTabletPort
+            // 
+            this.txtTabletPort.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtTabletPort.Font = new System.Drawing.Font("Arial Narrow", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtTabletPort.ImeMode = System.Windows.Forms.ImeMode.Disable;
+            this.txtTabletPort.Location = new System.Drawing.Point(328, 20);
+            this.txtTabletPort.MaxLength = 15;
+            this.txtTabletPort.Name = "txtTabletPort";
+            this.txtTabletPort.Size = new System.Drawing.Size(83, 21);
+            this.txtTabletPort.TabIndex = 1;
+            this.txtTabletPort.Text = "7654";
             // 
             // SettingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(447, 251);
+            this.Controls.Add(this.txtTabletPort);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.btnSave);
             this.Controls.Add(this.txtFtpPassword);
             this.Controls.Add(this.label5);
@@ -196,5 +221,7 @@
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.TextBox txtFtpPassword;
         private System.Windows.Forms.Button btnSave;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.TextBox txtTabletPort;
     }
 }

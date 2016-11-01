@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PaperlessPrint.Model;
+using PaperlessPrint.Common.Model;
 
-namespace PaperlessPrint.Utiles
+namespace PaperlessPrint.Common.Utiles
 {
 
     public static class ConfigurationHelper

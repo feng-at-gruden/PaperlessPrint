@@ -7,8 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using PaperlessPrint.Utiles;
-using PaperlessPrint.Model;
+using PaperlessPrint.Common.Utiles;
+using PaperlessPrint.Common.Model;
 
 namespace PaperlessPrint
 {
