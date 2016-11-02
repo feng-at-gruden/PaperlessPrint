@@ -9,9 +9,10 @@ namespace Common
     public static class Constants
     {
         public static bool DEBUG = true;
+        public const String Version = "v0.1";
 
-        //public const String TabletIP = "192.168.31.22";  
-        public const String TabletIP = "172.23.0.33";           
+        public const String TabletIP = "192.168.31.22";  
+        //public const String TabletIP = "172.23.0.33";           
         public const Int32 TabletPort = 12345;
         public const Int32 MaxClients = 5;
 

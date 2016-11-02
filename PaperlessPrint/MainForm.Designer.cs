@@ -35,6 +35,7 @@
             this.btnConfirmSign = new System.Windows.Forms.Button();
             this.btnClose = new System.Windows.Forms.Button();
             this.btnPrint = new System.Windows.Forms.Button();
+            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picReview)).BeginInit();
             this.SuspendLayout();
@@ -42,17 +43,18 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 782);
+            this.toolStripStatusLabel1,
+            this.toolStripProgressBar1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 717);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(579, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(579, 24);
             this.statusStrip1.TabIndex = 4;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(131, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(141, 19);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // txtLog
@@ -61,7 +63,7 @@
             this.txtLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtLog.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.txtLog.ForeColor = System.Drawing.Color.Yellow;
-            this.txtLog.Location = new System.Drawing.Point(0, 686);
+            this.txtLog.Location = new System.Drawing.Point(0, 621);
             this.txtLog.Name = "txtLog";
             this.txtLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.txtLog.Size = new System.Drawing.Size(579, 96);
@@ -74,7 +76,7 @@
             this.picReview.Dock = System.Windows.Forms.DockStyle.Fill;
             this.picReview.Location = new System.Drawing.Point(0, 0);
             this.picReview.Name = "picReview";
-            this.picReview.Size = new System.Drawing.Size(579, 782);
+            this.picReview.Size = new System.Drawing.Size(579, 717);
             this.picReview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picReview.TabIndex = 13;
             this.picReview.TabStop = false;
@@ -112,11 +114,17 @@
             this.btnPrint.UseVisualStyleBackColor = true;
             this.btnPrint.Click += new System.EventHandler(this.btnTabletShow_Click);
             // 
+            // toolStripProgressBar1
+            // 
+            this.toolStripProgressBar1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
+            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 18);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(579, 804);
+            this.ClientSize = new System.Drawing.Size(579, 741);
             this.ControlBox = false;
             this.Controls.Add(this.btnConfirmSign);
             this.Controls.Add(this.btnClose);
@@ -148,6 +156,7 @@
         private System.Windows.Forms.Button btnConfirmSign;
         private System.Windows.Forms.Button btnClose;
         private System.Windows.Forms.Button btnPrint;
+        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
     }
 }
 

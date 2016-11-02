@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Net;
 using System.Globalization;
+using System.IO;
 using Common;
 using Common.TCPServer;
 
@@ -111,6 +112,7 @@ namespace PaperlessPrint
             else if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
             {
                 Constants.DEBUG = !Constants.DEBUG;
+                txtLog.Visible = Constants.DEBUG;
             }
         }
        
@@ -138,23 +140,24 @@ namespace PaperlessPrint
             this.Height = h;
             this.Width = (int)Math.Floor((Double)Constants.A4Width * h / Constants.A4Height);
             btnConfirmSign.Left = btnPrint.Left = btnClose.Left = this.Width - 22 - btnClose.Width;
-            
+
+            toolStripStatusLabel1.Text = Constants.Version;
         }
 
         private void Log(String s)
         {
-            toolStripStatusLabel1.Text = s;
             txtLog.Text += DateTime.Now.ToString("HH:mm:ss") + " " + s + "\r\n";
             txtLog.SelectionStart = txtLog.Text.Length;
             txtLog.ScrollToCaret();
         }
         
-        private void ReviewBill(String file)
+        private void ReviewBill(String filepath)
         {
             //Open in local
 
             //Send to Tablet
-            SendPlaintText(NetWorkCommand.SHOW_BILL + ":" + currentFileName);
+            //SendPlaintText(NetWorkCommand.SHOW_BILL + ":" + currentFileName);
+            SendFile(filepath);
         }
 
         #endregion
@@ -193,6 +196,20 @@ namespace PaperlessPrint
             }
         }
 
+        private void SendFile(String path)
+        {
+            if (client.Connected)
+            {
+                FileStream fs = new FileStream(path, FileMode.Open);
+                //获取文件大小
+                long size = fs.Length;
+                byte[] data = new byte[size];
+                //将文件读到byte数组中
+                fs.Read(data, 0, data.Length);
+                fs.Close();
+                client.Send(data);
+            }
+        }
 
         private void Connected(object sender, TcpServerConnectedEventArgs e)
         {

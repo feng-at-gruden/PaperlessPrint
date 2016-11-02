@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Globalization;
+using System.IO;
 using Common;
 using Common.Utiles;
 using Common.TCPServer;
@@ -18,12 +19,7 @@ using Common.TCPServer;
 
 namespace Tablet
 {
-    /// <summary>
-    /// http://www.cnblogs.com/jamesping/articles/2071932.html
-    /// https://github.com/LiveOrDevTrying/TcpAsyncServerClient/blob/master/AsynchronousServer.cs
-    /// https://github.com/gaochundong/Gimela/blob/master/src/Foundation/Net/Gimela.Net.Sockets/TCP
-    /// 开始用UDP 后考虑文件传输改用Tcp异步1对n方式
-    /// </summary>
+
     public partial class MainForm : Form
     {
 
@@ -56,6 +52,8 @@ namespace Tablet
             //关闭Soket
             server.Stop();
             server.Dispose();
+
+            CleanTempFiles();
         }
 
 
@@ -87,6 +85,19 @@ namespace Tablet
             }
         }
 
+        private void CleanTempFiles()
+        {
+            //Clean local jpg files
+            foreach(string d in Directory.GetFileSystemEntries("."))
+            {
+                if(File.Exists(d) && d.IndexOf(".jpg")>0)
+                {
+                    File.Delete(d);
+                }
+            }
+
+        }
+
         #endregion
 
 
@@ -101,7 +112,8 @@ namespace Tablet
             server.Encoding = Encoding.UTF8;
             server.ClientConnected += new EventHandler<TcpClientConnectedEventArgs>(ClientConnected);
             server.ClientDisconnected += new EventHandler<TcpClientDisconnectedEventArgs>(ClientDisconnected);
-            server.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(PlaintextReceived);
+            server.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(PlainTextReceived);
+            server.DatagramReceived += new EventHandler<TcpDatagramReceivedEventArgs<byte[]>>(DatagramReceived);
             server.Start();
             Log("网络启动:" + NetworkHelper.GetLocalIP() + ":" + Constants.TabletPort);
         }
@@ -116,7 +128,7 @@ namespace Tablet
             Log(string.Format(CultureInfo.InvariantCulture, "TCP client {0} has disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
-        private void PlaintextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
+        private void PlainTextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
         {
             Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", e.Datagram));
             if (e.Datagram != "Received")
@@ -125,6 +137,17 @@ namespace Tablet
                 Console.WriteLine(string.Format("{0}", e.Datagram));
                 server.Send(e.TcpClient, "OK");
             }
+        }
+
+        private void DatagramReceived(object sender, TcpDatagramReceivedEventArgs<byte[]> e)
+        {
+            String filename = DateTime.Now.ToString("yyyyMMddHHmmss") + ".jpg";
+            Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", filename));
+            FileStream fs = new FileStream(filename, FileMode.Create);
+            fs.Write(e.Datagram, 0, e.Datagram.Length);
+            fs.Close();
+
+            server.Send(e.TcpClient, "File saved");
         }
 
         #endregion
