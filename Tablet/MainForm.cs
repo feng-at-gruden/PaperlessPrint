@@ -29,7 +29,6 @@ namespace Tablet
 
         # region Fields
 
-        private const bool Debug = true;
         private AsyncTcpServer server;
         
 
@@ -79,8 +78,13 @@ namespace Tablet
 
         private void Log(String txt)
         {
-            toolStripStatusLabel1.Text = txt;
-            txtLog.Text += DateTime.Now.ToString("HH:mm:ss") + " " + txt + "\r\n";
+            if (Constants.DEBUG)
+            {
+                toolStripStatusLabel1.Text = txt;
+                txtLog.Text += DateTime.Now.ToString("HH:mm:ss") + " " + txt + "\r\n";
+                txtLog.SelectionStart = txtLog.Text.Length;
+                txtLog.ScrollToCaret();
+            }
         }
 
         #endregion
@@ -93,32 +97,33 @@ namespace Tablet
 
         private void InitServer()
         {
-            server = new AsyncTcpServer(Constants.TcpPort);
+            server = new AsyncTcpServer(Constants.TabletPort);
             server.Encoding = Encoding.UTF8;
-            server.ClientConnected += new EventHandler<TcpClientConnectedEventArgs>(server_ClientConnected);
-            server.ClientDisconnected += new EventHandler<TcpClientDisconnectedEventArgs>(server_ClientDisconnected);
-            server.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(server_PlaintextReceived);
+            server.ClientConnected += new EventHandler<TcpClientConnectedEventArgs>(ClientConnected);
+            server.ClientDisconnected += new EventHandler<TcpClientDisconnectedEventArgs>(ClientDisconnected);
+            server.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(PlaintextReceived);
             server.Start();
-            Log("网络启动:" + Constants.TcpPort);
+            Log("网络启动:" + NetworkHelper.GetLocalIP() + ":" + Constants.TabletPort);
         }
 
-        private void server_ClientConnected(object sender, TcpClientConnectedEventArgs e)
+        private void ClientConnected(object sender, TcpClientConnectedEventArgs e)
         {
             Log(string.Format(CultureInfo.InvariantCulture, "TCP client {0} has connected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
-        private void server_ClientDisconnected(object sender, TcpClientDisconnectedEventArgs e)
+        private void ClientDisconnected(object sender, TcpClientDisconnectedEventArgs e)
         {
             Log(string.Format(CultureInfo.InvariantCulture, "TCP client {0} has disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
-        private void server_PlaintextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
+        private void PlaintextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
         {
+            Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", e.Datagram));
             if (e.Datagram != "Received")
             {
                 Console.Write(string.Format("Client : {0} --> ", e.TcpClient.Client.RemoteEndPoint.ToString()));
                 Console.WriteLine(string.Format("{0}", e.Datagram));
-                server.Send(e.TcpClient, "Server has received you text : " + e.Datagram);
+                server.Send(e.TcpClient, "OK");
             }
         }
 
