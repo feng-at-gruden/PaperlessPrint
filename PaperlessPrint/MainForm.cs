@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Globalization;
 using System.IO;
+using System.Threading;
 using Common;
 using Common.TCPServer;
 
@@ -140,7 +141,6 @@ namespace PaperlessPrint
             this.Height = h;
             this.Width = (int)Math.Floor((Double)Constants.A4Width * h / Constants.A4Height);
             btnConfirmSign.Left = btnPrint.Left = btnClose.Left = this.Width - 22 - btnClose.Width;
-
             toolStripStatusLabel1.Text = Constants.Version;
         }
 
@@ -181,9 +181,9 @@ namespace PaperlessPrint
 
         private void CloseNetWork()
         {
-            if (client != null)
+            if (client != null && client.Connected)
             {
-                //client.Close();
+                client.Close();
                 //client.Dispose();
             }
         }
@@ -207,6 +207,8 @@ namespace PaperlessPrint
                 //将文件读到byte数组中
                 fs.Read(data, 0, data.Length);
                 fs.Close();
+                client.Send(NetWorkCommand.SEND_FILE + ":" + size);
+                Thread.Sleep(500);
                 client.Send(data);
             }
         }

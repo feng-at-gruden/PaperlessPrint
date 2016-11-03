@@ -154,7 +154,7 @@ namespace Common.TCPServer
                 TcpListener tcpListener = (TcpListener)ar.AsyncState;
 
                 TcpClient tcpClient = tcpListener.EndAcceptTcpClient(ar);
-                byte[] buffer = new byte[1024 * 1024 * 5]; //Max 5MB file size  //new byte[tcpClient.ReceiveBufferSize];
+                byte[] buffer = new byte[Constants.BufferSize];  // new byte[1024 * 1024 * 5]; //Max 5MB file size  //new byte[tcpClient.ReceiveBufferSize];
 
                 TcpClientState internalClient = new TcpClientState(tcpClient, buffer);
                 lock (this.clients)

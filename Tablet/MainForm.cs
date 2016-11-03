@@ -26,7 +26,10 @@ namespace Tablet
         # region Fields
 
         private AsyncTcpServer server;
-        
+        private byte[] TempBuffer;
+        private long receiveFileSize = 0;
+        private long currentFileSize = 0;
+        private String currentFileName;
 
         #endregion
 
@@ -43,6 +46,7 @@ namespace Tablet
         private void MainForm_Load(object sender, EventArgs e)
         {
             InitServer();
+            InitUI();
         }
 
 
@@ -56,12 +60,21 @@ namespace Tablet
             CleanTempFiles();
         }
 
-
-        private void btnTest_Click(object sender, EventArgs e)
+        private void txtTestContent_KeyPress(object sender, KeyPressEventArgs e)
         {
-            if (txtTestContent.Text != null)
+            if (txtTestContent.Text != null && e.KeyChar == Convert.ToChar(Keys.Enter))
             {
                 server.SendAll(txtTestContent.Text);
+                txtTestContent.Text = "";
+            }
+        }
+
+        private void picPreview_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
+            {
+                Constants.DEBUG = !Constants.DEBUG;
+                panel1.Visible = Constants.DEBUG;
             }
         }
 
@@ -72,19 +85,45 @@ namespace Tablet
 
         #region Private Functions
 
-       
 
-        private void Log(String txt)
+        /// <summary>
+        /// 初始化窗体
+        /// </summary>
+        private void InitUI()
         {
             if (Constants.DEBUG)
             {
-                toolStripStatusLabel1.Text = txt;
-                txtLog.Text += DateTime.Now.ToString("HH:mm:ss") + " " + txt + "\r\n";
-                txtLog.SelectionStart = txtLog.Text.Length;
-                txtLog.ScrollToCaret();
+                panel1.Visible = true;
             }
+            else
+            {
+                panel1.Visible = false;
+            }
+            //Update Form size
+            System.Drawing.Rectangle rect = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
+            int h = rect.Height - SystemInformation.CaptionHeight - SystemInformation.MenuHeight;   //Cut off title bar heigth and task bar heith;
+            this.Height = h;
+            this.Width = (int)Math.Floor((Double)Constants.A4Width * h / Constants.A4Height);
+            
+
+            toolStripStatusLabel1.Text = Constants.Version;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="txt"></param>
+        private void Log(String txt)
+        {
+            toolStripStatusLabel1.Text = txt;
+            txtLog.Text += DateTime.Now.ToString("HH:mm:ss") + " " + txt + "\r\n";
+            txtLog.SelectionStart = txtLog.Text.Length;
+            txtLog.ScrollToCaret();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void CleanTempFiles()
         {
             //Clean local jpg files
@@ -97,6 +136,15 @@ namespace Tablet
             }
 
         }
+
+        private byte[] CopyToByteArry(byte[] bBig, byte[] bSmall)
+        {
+            byte[] tmp = new byte[bBig.Length + bSmall.Length];
+            System.Buffer.BlockCopy(bBig, 0, tmp, 0, bBig.Length);
+            System.Buffer.BlockCopy(bSmall, 0, tmp, bBig.Length, bSmall.Length);
+            return tmp;
+        }
+
 
         #endregion
 
@@ -112,7 +160,7 @@ namespace Tablet
             server.Encoding = Encoding.UTF8;
             server.ClientConnected += new EventHandler<TcpClientConnectedEventArgs>(ClientConnected);
             server.ClientDisconnected += new EventHandler<TcpClientDisconnectedEventArgs>(ClientDisconnected);
-            server.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(PlainTextReceived);
+            //server.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(PlainTextReceived);
             server.DatagramReceived += new EventHandler<TcpDatagramReceivedEventArgs<byte[]>>(DatagramReceived);
             server.Start();
             Log("网络启动:" + NetworkHelper.GetLocalIP() + ":" + Constants.TabletPort);
@@ -120,37 +168,87 @@ namespace Tablet
 
         private void ClientConnected(object sender, TcpClientConnectedEventArgs e)
         {
-            Log(string.Format(CultureInfo.InvariantCulture, "TCP client {0} has connected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
+            Log(string.Format(CultureInfo.InvariantCulture, "{0} connected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
         private void ClientDisconnected(object sender, TcpClientDisconnectedEventArgs e)
         {
-            Log(string.Format(CultureInfo.InvariantCulture, "TCP client {0} has disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
+            Log(string.Format(CultureInfo.InvariantCulture, "{0} disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
+        /// <summary>
+        /// Not sure not run this method
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PlainTextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
         {
-            Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", e.Datagram));
+            Log(string.Format(CultureInfo.InvariantCulture, "{0}:{1}", e.TcpClient.Client.RemoteEndPoint.ToString(), e.Datagram));
             if (e.Datagram != "Received")
             {
                 Console.Write(string.Format("Client : {0} --> ", e.TcpClient.Client.RemoteEndPoint.ToString()));
                 Console.WriteLine(string.Format("{0}", e.Datagram));
-                server.Send(e.TcpClient, "OK");
+                server.Send(e.TcpClient, NetWorkCommand.OK);
+            }
+            if(e.Datagram.IndexOf(NetWorkCommand.SEND_FILE)>=0)
+            {
+                long size = long.Parse(e.Datagram.Split(':')[1]);
+                TempBuffer = new byte[0];
+                receiveFileSize = size;
             }
         }
 
         private void DatagramReceived(object sender, TcpDatagramReceivedEventArgs<byte[]> e)
         {
-            String filename = DateTime.Now.ToString("yyyyMMddHHmmss") + ".jpg";
-            Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", filename));
-            FileStream fs = new FileStream(filename, FileMode.Create);
-            fs.Write(e.Datagram, 0, e.Datagram.Length);
-            fs.Close();
 
-            server.Send(e.TcpClient, "File saved");
+            if(e.Datagram[0] == 35)     // Start with # is plaint CMD
+            {
+                string cmd = System.Text.Encoding.Default.GetString(e.Datagram);
+                if (cmd.IndexOf(NetWorkCommand.SEND_FILE) >= 0)
+                {
+                    long size = long.Parse(cmd.Split(':')[1]);
+                    TempBuffer = new byte[0];
+                    receiveFileSize = size;
+                }
+                else
+                {
+                    Log(string.Format(CultureInfo.InvariantCulture, "{0}:{1}", e.TcpClient.Client.RemoteEndPoint.ToString(), cmd));
+                    server.Send(e.TcpClient, NetWorkCommand.OK);
+                }
+                return;
+            }
+
+
+            currentFileName = DateTime.Now.ToString("yyyyMMddHHmmss") + ".jpg";
+            if(currentFileSize < receiveFileSize)
+            {
+                currentFileSize += e.Datagram.Length;
+                TempBuffer = CopyToByteArry(TempBuffer, e.Datagram);
+            }
+            else
+            {
+                //Save to file
+
+                FileStream fs = new FileStream(currentFileName, FileMode.Create);
+                fs.Write(TempBuffer, 0, TempBuffer.Length);
+                fs.Close();
+                picPreview.ImageLocation = currentFileName;
+                Log(string.Format(CultureInfo.InvariantCulture, "{0} received from {1}", currentFileName, e.TcpClient.Client.RemoteEndPoint.ToString()));
+                
+                server.Send(e.TcpClient, NetWorkCommand.FILE_SAVED);
+                
+                currentFileSize = receiveFileSize = 0;
+                TempBuffer = null;
+                currentFileName = "";
+            }
+
         }
 
         #endregion
+
+        
+
+        
 
 
 
