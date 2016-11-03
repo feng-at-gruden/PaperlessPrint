@@ -9,6 +9,7 @@ using System.Globalization;
 
 namespace Common.TCPServer
 {
+    ///https://github.com/gaochundong/Gimela/blob/master/src/Foundation/Net/Gimela.Net.Sockets/TCP
     /// <summary>
     /// 异步TCP服务器
     /// </summary>
@@ -210,7 +211,7 @@ namespace Common.TCPServer
                   internalClient.Buffer, 0,
                   receivedBytes, 0, numberOfReadBytes);
                 RaiseDatagramReceived(internalClient.TcpClient, receivedBytes);
-                RaisePlaintextReceived(internalClient.TcpClient, receivedBytes);
+                //RaisePlaintextReceived(internalClient.TcpClient, receivedBytes);
 
                 // continue listening for tcp datagram packets
                 networkStream.BeginRead(

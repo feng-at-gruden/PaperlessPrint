@@ -26,6 +26,8 @@ namespace PaperlessPrint
         private AsyncTcpClient client;
         private String currentFileName;
 
+
+        int tempIndex = 0;
         #endregion
 
 
@@ -89,14 +91,31 @@ namespace PaperlessPrint
         }
 
         /// <summary>
-        /// 给Tablet发指令 显示账单并签名确认
+        /// 发送到打印机
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnTabletShow_Click(object sender, EventArgs e)
+        private void btnPrint_Click(object sender, EventArgs e)
         {
-            //MessageBox.Show("等待客户确认");
-            SendPlaintText(NetWorkCommand.SHOW_BILL + ":" + currentFileName);
+            //SendPlaintText(NetWorkCommand.SHOW_BILL + ":" + currentFileName);
+        }
+
+        /// <summary>
+        /// TODO, 笔迹合成 生成pdf  上传ftp
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnConfirmSign_Click(object sender, EventArgs e)
+        {
+            //Local debug 
+            if (currentFileName.IndexOf("test") >= 0)
+            {
+                string index = currentFileName.Substring(7, 1);
+                currentFileName = currentFileName.Replace(index, tempIndex++.ToString());
+                if (tempIndex > 4)
+                    tempIndex = 0;
+            }
+            ReviewBill(currentFileName);
         }
 
         /// <summary>
@@ -229,6 +248,9 @@ namespace PaperlessPrint
         }
 
         #endregion
+
+        
+        
 
 
 

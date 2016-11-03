@@ -43,16 +43,16 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 719);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 717);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(579, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(579, 24);
             this.statusStrip1.TabIndex = 4;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(131, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(141, 19);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // txtLog
@@ -61,7 +61,7 @@
             this.txtLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtLog.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.txtLog.ForeColor = System.Drawing.Color.Yellow;
-            this.txtLog.Location = new System.Drawing.Point(0, 623);
+            this.txtLog.Location = new System.Drawing.Point(0, 621);
             this.txtLog.Name = "txtLog";
             this.txtLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.txtLog.Size = new System.Drawing.Size(579, 96);
@@ -74,7 +74,7 @@
             this.picReview.Dock = System.Windows.Forms.DockStyle.Fill;
             this.picReview.Location = new System.Drawing.Point(0, 0);
             this.picReview.Name = "picReview";
-            this.picReview.Size = new System.Drawing.Size(579, 719);
+            this.picReview.Size = new System.Drawing.Size(579, 717);
             this.picReview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picReview.TabIndex = 13;
             this.picReview.TabStop = false;
@@ -89,6 +89,7 @@
             this.btnConfirmSign.TabIndex = 16;
             this.btnConfirmSign.Text = "签字完成";
             this.btnConfirmSign.UseVisualStyleBackColor = true;
+            this.btnConfirmSign.Click += new System.EventHandler(this.btnConfirmSign_Click);
             // 
             // btnClose
             // 
@@ -110,7 +111,7 @@
             this.btnPrint.TabIndex = 17;
             this.btnPrint.Text = "物理打印";
             this.btnPrint.UseVisualStyleBackColor = true;
-            this.btnPrint.Click += new System.EventHandler(this.btnTabletShow_Click);
+            this.btnPrint.Click += new System.EventHandler(this.btnPrint_Click);
             // 
             // MainForm
             // 

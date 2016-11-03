@@ -30,6 +30,7 @@
         {
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
+            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtTestContent = new System.Windows.Forms.TextBox();
             this.txtLog = new System.Windows.Forms.TextBox();
@@ -42,25 +43,32 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 349);
+            this.toolStripStatusLabel1,
+            this.toolStripProgressBar1});
+            this.statusStrip1.Location = new System.Drawing.Point(0, 347);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(352, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(352, 24);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(131, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(141, 19);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
+            // 
+            // toolStripProgressBar1
+            // 
+            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
+            this.toolStripProgressBar1.Size = new System.Drawing.Size(100, 18);
+            this.toolStripProgressBar1.Visible = false;
             // 
             // panel1
             // 
             this.panel1.Controls.Add(this.txtTestContent);
             this.panel1.Controls.Add(this.txtLog);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 123);
+            this.panel1.Location = new System.Drawing.Point(0, 121);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(352, 226);
             this.panel1.TabIndex = 1;
@@ -90,9 +98,11 @@
             // picPreview
             // 
             this.picPreview.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.picPreview.ImageLocation = "";
+            this.picPreview.InitialImage = null;
             this.picPreview.Location = new System.Drawing.Point(0, 0);
             this.picPreview.Name = "picPreview";
-            this.picPreview.Size = new System.Drawing.Size(352, 123);
+            this.picPreview.Size = new System.Drawing.Size(352, 121);
             this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picPreview.TabIndex = 2;
             this.picPreview.TabStop = false;
@@ -106,6 +116,8 @@
             this.Controls.Add(this.picPreview);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "确认账单";
@@ -129,6 +141,7 @@
         private System.Windows.Forms.TextBox txtTestContent;
         private System.Windows.Forms.TextBox txtLog;
         private System.Windows.Forms.PictureBox picPreview;
+        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
     }
 }
 

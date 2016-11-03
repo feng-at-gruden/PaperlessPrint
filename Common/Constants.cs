@@ -11,8 +11,10 @@ namespace Common
         public static bool DEBUG = false;
         public const String Version = "v0.1";
 
-        //public const String TabletIP = "192.168.31.22";  
-        public const String TabletIP = "172.23.0.33";           
+        public const String TempFileFolder = "tmp";
+
+        public const String TabletIP = "192.168.31.22";  
+        //public const String TabletIP = "172.23.0.33";           
         public const Int32 TabletPort = 12345;
         public const Int32 MaxClients = 5;
         public const Int32 BufferSize = 65536;
