@@ -244,7 +244,12 @@ namespace PaperlessPrint
 
         private void PlainTextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
         {
-            Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", e.Datagram));
+            string cmd = e.Datagram;
+            Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
+            if (cmd.IndexOf(NetWorkCommand.QUIT) >= 0)
+            {
+                this.Close();
+            }
         }
 
         #endregion

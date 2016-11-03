@@ -42,6 +42,11 @@ namespace Tablet
 
         #region UI Events
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainForm_Load(object sender, EventArgs e)
         {
             InitServer();
@@ -52,8 +57,11 @@ namespace Tablet
             }
         }
 
-
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             //关闭Soket
@@ -63,6 +71,26 @@ namespace Tablet
             CleanTempFiles();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainForm_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Escape)
+            {
+                //TODO, 显示退出确认密码框
+                this.Close();
+            }
+            
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void txtTestContent_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (txtTestContent.Text != null && e.KeyChar == Convert.ToChar(Keys.Enter))
@@ -72,12 +100,30 @@ namespace Tablet
             }
         }
 
+        /// <summary>
+        ///  屏蔽ctrl+F4
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MainForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if ((e.KeyCode == Keys.F4) && (e.Alt == true))
+            {
+                e.Handled = true;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void picPreview_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             if ((Control.ModifierKeys & Keys.Shift) == Keys.Shift)
             {
                 Constants.DEBUG = !Constants.DEBUG;
-                panel1.Visible = Constants.DEBUG;
+                statusStrip1.Visible = panel1.Visible = Constants.DEBUG;
             }
         }
 
@@ -97,20 +143,27 @@ namespace Tablet
             if (Constants.DEBUG)
             {
                 panel1.Visible = true;
+                statusStrip1.Visible = true;
             }
             else
             {
                 panel1.Visible = false;
+                statusStrip1.Visible = false;
             }
             //Update Form size
             System.Drawing.Rectangle rect = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
             int h = rect.Height - SystemInformation.CaptionHeight - SystemInformation.MenuHeight;   //Cut off title bar heigth and task bar heith;
             this.Height = h;
             this.Width = (int)Math.Floor((Double)Constants.A4Width * h / Constants.A4Height);
+            this.Top = this.Left = 0;
             
             toolStripStatusLabel1.Text = Constants.Version;
         }
 
+        /// <summary>
+        /// 更新接受进度条
+        /// </summary>
+        /// <param name="v"></param>
         private void UpdateReceiveProgress(int v)
         {
             if(this.InvokeRequired)
@@ -127,7 +180,7 @@ namespace Tablet
         }
 
         /// <summary>
-        /// 
+        /// 打印调试信息
         /// </summary>
         /// <param name="txt"></param>
         private void Log(String txt)
@@ -138,7 +191,7 @@ namespace Tablet
         }
 
         /// <summary>
-        /// 
+        /// 删除临时文件
         /// </summary>
         private void CleanTempFiles()
         {
@@ -157,6 +210,12 @@ namespace Tablet
 
         }
 
+        /// <summary>
+        /// 字节数组拷贝
+        /// </summary>
+        /// <param name="bBig"></param>
+        /// <param name="bSmall"></param>
+        /// <returns></returns>
         private byte[] CopyToByteArry(byte[] bBig, byte[] bSmall)
         {
             byte[] tmp = new byte[bBig.Length + bSmall.Length];
@@ -197,11 +256,7 @@ namespace Tablet
             Log(string.Format(CultureInfo.InvariantCulture, "{0} disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
-        /// <summary>
-        /// Not sure not run this method
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        
         private void PlainTextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
         {
             Log(string.Format(CultureInfo.InvariantCulture, "{0}:{1}", e.TcpClient.Client.RemoteEndPoint.ToString(), e.Datagram));
@@ -265,6 +320,10 @@ namespace Tablet
         }
 
         #endregion
+
+        
+
+        
 
         
 

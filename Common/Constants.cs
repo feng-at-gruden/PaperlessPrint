@@ -29,11 +29,12 @@ namespace Common
     ///Network Commands
     public static class NetWorkCommand
     {
+        public const String OK = "OK";
+        public const String QUIT = "#QUIT";
+        public const String FILE_SAVED = "FILE_SAVED";
+        public const String SEND_FILE = "#SEND_FILE";
         public const String SHOW_BILL = "#SHOW_BILL";
         public const String SIGN_DONE = "#SIGN_DONE";
-        public const String OK = "OK";
-        public const String FILE_SAVED = "#FILE_SAVED";
-        public const String SEND_FILE = "#SEND_FILE";
     }
 
 }
