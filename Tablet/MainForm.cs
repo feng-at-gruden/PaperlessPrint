@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -12,6 +11,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Globalization;
 using System.IO;
+using System.Drawing.Drawing2D;
 using Common;
 using Common.Utiles;
 using Common.TCPServer;
@@ -29,6 +29,13 @@ namespace Tablet
         private byte[] TempBuffer = new byte[0];
         private long receiveFileSize = 0;
         private long currentFileSize = 0;
+        private TcpClient currentClient;
+
+        private bool drawing;
+        private int pX = -1;
+        private int pY = -1;
+
+        private Bitmap bitmap;
 
         #endregion
 
@@ -158,6 +165,14 @@ namespace Tablet
             this.Top = this.Left = 0;
             
             toolStripStatusLabel1.Text = Constants.Version;
+
+            //Signature area
+            picSignature.Parent = picPreview;
+
+            bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
+            Graphics.FromImage(bitmap).Clear(Color.Transparent);
+            btnClear.Left = this.Width - btnClear.Width - 22;
+            btnClear.Top = 10;
         }
 
         /// <summary>
@@ -233,7 +248,6 @@ namespace Tablet
         #region TCP Server
 
         
-
         private void InitServer()
         {
             server = new AsyncTcpServer(Constants.TabletPort);
@@ -248,17 +262,20 @@ namespace Tablet
 
         private void ClientConnected(object sender, TcpClientConnectedEventArgs e)
         {
+            currentClient = e.TcpClient;
             Log(string.Format(CultureInfo.InvariantCulture, "{0} connected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
         private void ClientDisconnected(object sender, TcpClientDisconnectedEventArgs e)
         {
+            currentClient = null;
             Log(string.Format(CultureInfo.InvariantCulture, "{0} disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
         
         private void PlainTextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
         {
+            currentClient = e.TcpClient;
             Log(string.Format(CultureInfo.InvariantCulture, "{0}:{1}", e.TcpClient.Client.RemoteEndPoint.ToString(), e.Datagram));
             if (e.Datagram != "Received")
             {
@@ -276,8 +293,8 @@ namespace Tablet
 
         private void DatagramReceived(object sender, TcpDatagramReceivedEventArgs<byte[]> e)
         {
-
-            if(e.Datagram[0] == 35)     // Start with # is plaint CMD
+            currentClient = e.TcpClient;
+            if(e.Datagram[0] == 35 && e.Datagram.Length<30)     // Start with # is plaint CMD
             {
                 string cmd = System.Text.Encoding.Default.GetString(e.Datagram);
                 if (cmd.IndexOf(NetWorkCommand.SEND_FILE) >= 0)
@@ -319,15 +336,71 @@ namespace Tablet
 
         }
 
+
+        private void DrawLineToReception(int pX, int pY, int nX, int nY)
+        {
+            if( currentClient!=null )
+                server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0}:{1}:{2}:{3}:{4}", NetWorkCommand.DRAW, pX, pY, nX, nY));
+        }
+
+        #endregion
+
+
+        #region Signature
+
+        private void picSignature_MouseDown(object sender, MouseEventArgs e)
+        {
+            drawing = true;
+            pX = e.X;
+            pY = e.Y;
+        }
+
+        private void picSignature_MouseUp(object sender, MouseEventArgs e)
+        {
+            drawing = false;
+        }
+
+        private void picSignature_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (drawing)
+            {
+                Graphics panel = Graphics.FromImage(bitmap);
+                Pen pen = new Pen(Color.Black, Constants.PenWidth);
+
+                pen.EndCap = LineCap.Round;
+                pen.StartCap = LineCap.Round;
+
+                panel.DrawLine(pen, pX, pY, e.X, e.Y);
+                DrawLineToReception(pX, pY, e.X, e.Y);
+
+                picSignature.CreateGraphics().DrawImageUnscaled(bitmap, new Point(0, 0));
+            }
+
+            pX = e.X;
+            pY = e.Y;
+        }
+
+
+        private void btnClear_Click(object sender, EventArgs e)
+        {
+            bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
+            Graphics.FromImage(bitmap).Clear(Color.Transparent);
+            picSignature.Refresh();
+            if (currentClient != null)
+                server.Send(currentClient, NetWorkCommand.CLEAN);
+        }
+
         #endregion
 
         
 
-        
 
-        
 
-        
+
+
+
+
+
 
 
 

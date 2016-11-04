@@ -35,9 +35,12 @@
             this.txtTestContent = new System.Windows.Forms.TextBox();
             this.txtLog = new System.Windows.Forms.TextBox();
             this.picPreview = new System.Windows.Forms.PictureBox();
+            this.picSignature = new System.Windows.Forms.PictureBox();
+            this.btnClear = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picSignature)).BeginInit();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -45,16 +48,16 @@
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1,
             this.toolStripProgressBar1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 347);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 349);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(352, 24);
+            this.statusStrip1.Size = new System.Drawing.Size(352, 22);
             this.statusStrip1.TabIndex = 0;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(141, 19);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(131, 17);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // toolStripProgressBar1
@@ -65,10 +68,11 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.picSignature);
             this.panel1.Controls.Add(this.txtTestContent);
             this.panel1.Controls.Add(this.txtLog);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel1.Location = new System.Drawing.Point(0, 121);
+            this.panel1.Location = new System.Drawing.Point(0, 123);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(352, 226);
             this.panel1.TabIndex = 1;
@@ -102,21 +106,48 @@
             this.picPreview.InitialImage = null;
             this.picPreview.Location = new System.Drawing.Point(0, 0);
             this.picPreview.Name = "picPreview";
-            this.picPreview.Size = new System.Drawing.Size(352, 121);
+            this.picPreview.Size = new System.Drawing.Size(352, 123);
             this.picPreview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picPreview.TabIndex = 2;
             this.picPreview.TabStop = false;
             this.picPreview.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.picPreview_MouseDoubleClick);
+            // 
+            // picSignature
+            // 
+            this.picSignature.BackColor = System.Drawing.Color.Transparent;
+            this.picSignature.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.picSignature.Location = new System.Drawing.Point(0, 21);
+            this.picSignature.Name = "picSignature";
+            this.picSignature.Size = new System.Drawing.Size(352, 6);
+            this.picSignature.TabIndex = 4;
+            this.picSignature.TabStop = false;
+            this.picSignature.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.picPreview_MouseDoubleClick);
+            this.picSignature.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseDown);
+            this.picSignature.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseMove);
+            this.picSignature.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseUp);
+            // 
+            // btnClear
+            // 
+            this.btnClear.FlatAppearance.BorderColor = System.Drawing.Color.Teal;
+            this.btnClear.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnClear.Location = new System.Drawing.Point(265, 12);
+            this.btnClear.Name = "btnClear";
+            this.btnClear.Size = new System.Drawing.Size(75, 34);
+            this.btnClear.TabIndex = 6;
+            this.btnClear.Text = "CLEAN";
+            this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(352, 371);
+            this.Controls.Add(this.btnClear);
             this.Controls.Add(this.picPreview);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.statusStrip1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "MainForm";
@@ -132,6 +163,7 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picPreview)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picSignature)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -146,6 +178,8 @@
         private System.Windows.Forms.TextBox txtLog;
         private System.Windows.Forms.PictureBox picPreview;
         private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
+        private System.Windows.Forms.PictureBox picSignature;
+        private System.Windows.Forms.Button btnClear;
     }
 }
 

@@ -11,6 +11,7 @@ using System.Net;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using System.Drawing.Drawing2D;
 using Common;
 using Common.TCPServer;
 
@@ -25,9 +26,10 @@ namespace PaperlessPrint
         private string[] args = null;
         private AsyncTcpClient client;
         private String currentFileName;
-
+        private Bitmap bitmap;
 
         int tempIndex = 0;
+
         #endregion
 
 
@@ -61,7 +63,6 @@ namespace PaperlessPrint
             if (this.args != null)
             {
                 ReviewBill(currentFileName);
-                picReview.ImageLocation = currentFileName;
             }
             else
             {
@@ -161,6 +162,22 @@ namespace PaperlessPrint
             this.Width = (int)Math.Floor((Double)Constants.A4Width * h / Constants.A4Height);
             btnConfirmSign.Left = btnPrint.Left = btnClose.Left = this.Width - 22 - btnClose.Width;
             toolStripStatusLabel1.Text = Constants.Version;
+
+            //Signature preview area
+            if(Constants.DesktopSignatureScale > 1)
+            {
+                picSignature.Width = (int) this.Width / Constants.DesktopSignatureScale;
+                picSignature.Height = (int)this.Height / Constants.DesktopSignatureScale;
+                picSignature.Top = this.Height - picSignature.Height - statusStrip1.Height - 44;
+                picSignature.Left = this.Width - picSignature.Width - 20;
+            }
+            else
+            {
+                picSignature.Dock = DockStyle.Fill;
+            }
+            picSignature.Parent = picReview;
+            bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
+            Graphics.FromImage(bitmap).Clear(Color.Transparent);
         }
 
         private void Log(String s)
@@ -176,7 +193,22 @@ namespace PaperlessPrint
 
             //Send to Tablet
             //SendPlaintText(NetWorkCommand.SHOW_BILL + ":" + currentFileName);
+            picReview.ImageLocation = currentFileName;
             SendFile(filepath);
+        }
+
+        private void DrawLine(int pX, int pY, int nX, int nY)
+        {
+            Graphics panel = Graphics.FromImage(bitmap);
+
+            Pen pen = new Pen(Color.Black, Math.Max(Constants.PenWidth / Constants.DesktopSignatureScale, 1));
+
+            pen.EndCap = LineCap.Round;
+            pen.StartCap = LineCap.Round;
+
+            panel.DrawLine(pen, pX / Constants.DesktopSignatureScale, pY / Constants.DesktopSignatureScale, nX / Constants.DesktopSignatureScale, nY / Constants.DesktopSignatureScale);
+
+            picSignature.CreateGraphics().DrawImageUnscaled(bitmap, new Point(0, 0));
         }
 
         #endregion
@@ -249,6 +281,22 @@ namespace PaperlessPrint
             if (cmd.IndexOf(NetWorkCommand.QUIT) >= 0)
             {
                 this.Close();
+            }
+            else if(cmd.IndexOf(NetWorkCommand.DRAW)>=0)
+            {
+                String[] cmds = cmd.Split('#');
+                foreach (String c in cmds)
+                {
+                    String[] arg = c.Split(':');
+                    if (arg.Length == 5)
+                        DrawLine(int.Parse(arg[1]), int.Parse(arg[2]), int.Parse(arg[3]), int.Parse(arg[4]));
+                }
+            }
+            else if(cmd.IndexOf(NetWorkCommand.CLEAN)>=0)
+            {
+                bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
+                Graphics.FromImage(bitmap).Clear(Color.Transparent);
+                picSignature.Refresh();
             }
         }
 
