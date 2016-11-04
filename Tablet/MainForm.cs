@@ -40,6 +40,7 @@ namespace Tablet
         #endregion
 
 
+
         public MainForm()
         {
             InitializeComponent();
@@ -135,7 +136,6 @@ namespace Tablet
         }
 
         #endregion
-
 
 
 
@@ -302,6 +302,7 @@ namespace Tablet
                     long size = long.Parse(cmd.Split(':')[1]);
                     receiveFileSize = size;
                     UpdateReceiveProgress(0);
+                    CleanSignature();
                 }
                 else
                 {
@@ -339,11 +340,14 @@ namespace Tablet
 
         private void DrawLineToReception(int pX, int pY, int nX, int nY)
         {
+            if (nX < 0 || nX > this.Width || nY < 0 || nY > this.Height)
+                return;
             if( currentClient!=null )
                 server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0}:{1}:{2}:{3}:{4}", NetWorkCommand.DRAW, pX, pY, nX, nY));
         }
 
         #endregion
+
 
 
         #region Signature
@@ -382,6 +386,11 @@ namespace Tablet
 
 
         private void btnClear_Click(object sender, EventArgs e)
+        {
+            CleanSignature();
+        }
+
+        private void CleanSignature()
         {
             bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
             Graphics.FromImage(bitmap).Clear(Color.Transparent);

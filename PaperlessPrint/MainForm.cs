@@ -168,8 +168,8 @@ namespace PaperlessPrint
             {
                 picSignature.Width = (int) this.Width / Constants.DesktopSignatureScale;
                 picSignature.Height = (int)this.Height / Constants.DesktopSignatureScale;
-                picSignature.Top = this.Height - picSignature.Height - statusStrip1.Height - 44;
-                picSignature.Left = this.Width - picSignature.Width - 20;
+                picSignature.Top = this.Height - picSignature.Height - statusStrip1.Height - 54;
+                picSignature.Left = this.Width - picSignature.Width - 40;
             }
             else
             {
@@ -227,6 +227,7 @@ namespace PaperlessPrint
             client.ServerConnected += new EventHandler<TcpServerConnectedEventArgs>(Connected);
             client.ServerDisconnected += new EventHandler<TcpServerDisconnectedEventArgs>(Disconnected);
             client.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(PlainTextReceived);
+            client.DatagramReceived += new EventHandler<TcpDatagramReceivedEventArgs<byte[]>>(DatagramReceived);
         }
 
 
@@ -235,7 +236,7 @@ namespace PaperlessPrint
             if (client != null && client.Connected)
             {
                 client.Close();
-                //client.Dispose();
+                client.Dispose();
             }
         }
 
@@ -297,6 +298,14 @@ namespace PaperlessPrint
                 bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
                 Graphics.FromImage(bitmap).Clear(Color.Transparent);
                 picSignature.Refresh();
+            }
+        }
+
+        private void DatagramReceived(object sender, TcpDatagramReceivedEventArgs<byte[]> e)
+        {
+            if (e.Datagram[0] == 35)     // Start with # is plaint CMD
+            {
+                string cmd = System.Text.Encoding.Default.GetString(e.Datagram);
             }
         }
 

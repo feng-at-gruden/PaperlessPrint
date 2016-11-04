@@ -233,46 +233,52 @@ namespace Common.TCPServer
 
         private void HandleDatagramReceived(IAsyncResult ar)
         {
-            NetworkStream stream = _tcpClient.GetStream();
-
-            int numberOfReadBytes = 0;
             try
             {
-                numberOfReadBytes = stream.EndRead(ar);
+
+
+                NetworkStream stream = _tcpClient.GetStream();
+
+                int numberOfReadBytes = 0;
+                try
+                {
+                    numberOfReadBytes = stream.EndRead(ar);
+                }
+                catch
+                {
+                    numberOfReadBytes = 0;
+                }
+
+                if (numberOfReadBytes == 0)
+                {
+                    // connection has been closed
+                    Close();
+                    return;
+                }
+
+                // received byte and trigger event notification
+                byte[] buffer = (byte[])ar.AsyncState;
+                byte[] receivedBytes = new byte[numberOfReadBytes];
+                Array.Copy(buffer, 0, receivedBytes, 0, numberOfReadBytes);
+
+                // 当你看到这里时，这里的代码已经年久失修了，我并没有再进一步完善这里的 Socket 相关代码。
+                // 比如，没有分包组包粘包，甚至连消息头都没有定义。
+                // 那怎么办呢？可以参考这里： https://github.com/gaochundong/Cowboy
+
+                // If you reach here for some reasons, I'm sorry the source code here hasn't been maintained for a little while.
+                // I didn't keep update the code about socket and other related such as packet splitting or packet concatting.
+                // So much even that I didn't define a packet header or something like the packet end delimiters.
+                // Then, what can I do now? please take a look my new socket project:
+                // https://github.com/gaochundong/Cowboy
+                // Good Luck!
+
+                RaiseDatagramReceived(_tcpClient, receivedBytes);
+                RaisePlaintextReceived(_tcpClient, receivedBytes);
+
+                // then start reading from the network again
+                stream.BeginRead(buffer, 0, buffer.Length, HandleDatagramReceived, buffer);
             }
-            catch
-            {
-                numberOfReadBytes = 0;
-            }
-
-            if (numberOfReadBytes == 0)
-            {
-                // connection has been closed
-                Close();
-                return;
-            }
-
-            // received byte and trigger event notification
-            byte[] buffer = (byte[])ar.AsyncState;
-            byte[] receivedBytes = new byte[numberOfReadBytes];
-            Array.Copy(buffer, 0, receivedBytes, 0, numberOfReadBytes);
-
-            // 当你看到这里时，这里的代码已经年久失修了，我并没有再进一步完善这里的 Socket 相关代码。
-            // 比如，没有分包组包粘包，甚至连消息头都没有定义。
-            // 那怎么办呢？可以参考这里： https://github.com/gaochundong/Cowboy
-
-            // If you reach here for some reasons, I'm sorry the source code here hasn't been maintained for a little while.
-            // I didn't keep update the code about socket and other related such as packet splitting or packet concatting.
-            // So much even that I didn't define a packet header or something like the packet end delimiters.
-            // Then, what can I do now? please take a look my new socket project:
-            // https://github.com/gaochundong/Cowboy
-            // Good Luck!
-
-            RaiseDatagramReceived(_tcpClient, receivedBytes);
-            RaisePlaintextReceived(_tcpClient, receivedBytes);
-
-            // then start reading from the network again
-            stream.BeginRead(buffer, 0, buffer.Length, HandleDatagramReceived, buffer);
+            catch { }
         }
 
         #endregion

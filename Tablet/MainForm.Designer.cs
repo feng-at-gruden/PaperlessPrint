@@ -32,15 +32,15 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.picSignature = new System.Windows.Forms.PictureBox();
             this.txtTestContent = new System.Windows.Forms.TextBox();
             this.txtLog = new System.Windows.Forms.TextBox();
             this.picPreview = new System.Windows.Forms.PictureBox();
-            this.picSignature = new System.Windows.Forms.PictureBox();
             this.btnClear = new System.Windows.Forms.Button();
             this.statusStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picSignature)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).BeginInit();
             this.SuspendLayout();
             // 
             // statusStrip1
@@ -78,6 +78,20 @@
             this.panel1.TabIndex = 1;
             this.panel1.Visible = false;
             // 
+            // picSignature
+            // 
+            this.picSignature.BackColor = System.Drawing.Color.Transparent;
+            this.picSignature.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.picSignature.Location = new System.Drawing.Point(0, 21);
+            this.picSignature.Name = "picSignature";
+            this.picSignature.Size = new System.Drawing.Size(352, 6);
+            this.picSignature.TabIndex = 4;
+            this.picSignature.TabStop = false;
+            this.picSignature.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.picPreview_MouseDoubleClick);
+            this.picSignature.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseDown);
+            this.picSignature.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseMove);
+            this.picSignature.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseUp);
+            // 
             // txtTestContent
             // 
             this.txtTestContent.Dock = System.Windows.Forms.DockStyle.Top;
@@ -112,20 +126,6 @@
             this.picPreview.TabStop = false;
             this.picPreview.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.picPreview_MouseDoubleClick);
             // 
-            // picSignature
-            // 
-            this.picSignature.BackColor = System.Drawing.Color.Transparent;
-            this.picSignature.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.picSignature.Location = new System.Drawing.Point(0, 21);
-            this.picSignature.Name = "picSignature";
-            this.picSignature.Size = new System.Drawing.Size(352, 6);
-            this.picSignature.TabIndex = 4;
-            this.picSignature.TabStop = false;
-            this.picSignature.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.picPreview_MouseDoubleClick);
-            this.picSignature.MouseDown += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseDown);
-            this.picSignature.MouseMove += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseMove);
-            this.picSignature.MouseUp += new System.Windows.Forms.MouseEventHandler(this.picSignature_MouseUp);
-            // 
             // btnClear
             // 
             this.btnClear.FlatAppearance.BorderColor = System.Drawing.Color.Teal;
@@ -152,7 +152,7 @@
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "确认账单";
+            this.Text = "账单确认";
             this.TopMost = true;
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.MainForm_FormClosed);
             this.Load += new System.EventHandler(this.MainForm_Load);
@@ -162,8 +162,8 @@
             this.statusStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picSignature)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picPreview)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
