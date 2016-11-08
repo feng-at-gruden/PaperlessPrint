@@ -188,10 +188,12 @@ namespace PaperlessPrint
             if(Constants.DEBUG)
             {
                 txtLog.Visible = true;
+                statusStrip1.Visible = true;
             }
             else
             {
                 txtLog.Visible = false;
+                statusStrip1.Visible = false;
             }
             //Update Form size
             System.Drawing.Rectangle rect = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
@@ -256,11 +258,14 @@ namespace PaperlessPrint
             doc.Open();
 
             iTextSharp.text.Image img1 = iTextSharp.text.Image.GetInstance(f1);
-            img1.ScalePercent(100f);
+            //img1.ScalePercent(1f);
+            img1.ScaleToFit(doc.PageSize);
+            img1.SetAbsolutePosition(0, 0);
             doc.Add(img1);
 
             iTextSharp.text.Image img2 = iTextSharp.text.Image.GetInstance(f2);
-            img2.ScalePercent(100f);
+            img2.ScaleToFit(doc.PageSize);
+            img2.SetAbsolutePosition(0, 0);
             doc.Add(img2);
 
             doc.Close();
@@ -361,9 +366,10 @@ namespace PaperlessPrint
         private void PlainTextReceived(object sender, TcpDatagramReceivedEventArgs<string> e)
         {
             string cmd = e.Datagram;
-            Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
+            
             if (cmd.IndexOf(NetWorkCommand.QUIT) >= 0)
             {
+                Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
                 this.Close();
             }
             else if(cmd.IndexOf(NetWorkCommand.DRAW)>=0)
@@ -379,6 +385,7 @@ namespace PaperlessPrint
             }
             else if(cmd.IndexOf(NetWorkCommand.CLEAN)>=0)
             {
+                Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
                 emptySignature = true;
                 bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
                 Graphics.FromImage(bitmap).Clear(Color.Transparent);

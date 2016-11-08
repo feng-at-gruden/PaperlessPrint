@@ -14,9 +14,22 @@ namespace Tablet
         [STAThread]
         static void Main()
         {
-            Application.EnableVisualStyles();
-            Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            bool createNew;
+            using (System.Threading.Mutex mutex = new System.Threading.Mutex(true, Application.ProductName, out createNew))
+            {
+                if (createNew)
+                {
+                    Application.EnableVisualStyles();
+                    Application.SetCompatibleTextRenderingDefault(false);
+                    Application.Run(new MainForm());
+                }
+                else
+                {
+                    MessageBox.Show("程序已经在运行中,请关闭重试！");
+                    System.Threading.Thread.Sleep(500);
+                    System.Environment.Exit(1);
+                }
+            }
         }
     }
 }
