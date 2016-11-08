@@ -91,7 +91,7 @@
             this.btnConfirmSign.Name = "btnConfirmSign";
             this.btnConfirmSign.Size = new System.Drawing.Size(84, 39);
             this.btnConfirmSign.TabIndex = 16;
-            this.btnConfirmSign.Text = "签字完成";
+            this.btnConfirmSign.Text = "签名完成";
             this.btnConfirmSign.UseVisualStyleBackColor = true;
             this.btnConfirmSign.Click += new System.EventHandler(this.btnConfirmSign_Click);
             // 
@@ -113,7 +113,7 @@
             this.btnPrint.Name = "btnPrint";
             this.btnPrint.Size = new System.Drawing.Size(84, 39);
             this.btnPrint.TabIndex = 17;
-            this.btnPrint.Text = "物理打印";
+            this.btnPrint.Text = "纸质打印";
             this.btnPrint.UseVisualStyleBackColor = true;
             this.btnPrint.Click += new System.EventHandler(this.btnPrint_Click);
             // 

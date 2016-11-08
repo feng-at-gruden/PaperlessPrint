@@ -31,13 +31,17 @@ namespace Common
     public static class NetWorkCommand
     {
         public const String OK = "OK";
-        public const String QUIT = "#QUIT";
-        public const String DRAW = "#DRAW";
-        public const String CLEAN = "#CLEAN";
-        public const String FILE_SAVED = "FILE_SAVED";
-        public const String SEND_FILE = "#SEND_FILE";
-        public const String SHOW_BILL = "#SHOW_BILL";
-        public const String SIGN_DONE = "#SIGN_DONE";
+        public const String FILE_RECEIVED = "FILE_RECEIVED";
+        public const String CMD = "##";
+
+        public const String QUIT = CMD + "QUIT";
+        public const String DRAW = CMD + "DRAW";
+        public const String CLEAN = CMD + "CLEAN";
+        public const String SIGNATURE_DONE = CMD + "SIGNATURE_DONE";
+        public const String SEND_FILE = CMD + "SEND_FILE";
+
+        //public const String SHOW_BILL = CMD + "SHOW_BILL";
+        //public const String SIGN_DONE = CMD + "SIGN_DONE";
     }
 
 }

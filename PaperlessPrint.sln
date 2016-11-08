@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaperlessPrint", "PaperlessPrint\PaperlessPrint.csproj", "{17047B97-303A-48F3-B619-71020D7570F9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reception", "PaperlessPrint\Reception.csproj", "{17047B97-303A-48F3-B619-71020D7570F9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tablet", "Tablet\Tablet.csproj", "{380BB524-E314-4299-89DC-DEFF616B0995}"
 EndProject

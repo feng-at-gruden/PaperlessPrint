@@ -12,6 +12,8 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using System.Drawing.Drawing2D;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Common;
 using Common.TCPServer;
 
@@ -21,16 +23,19 @@ namespace PaperlessPrint
     public partial class MainForm : Form
     {
 
+
         #region Fields
 
         private string[] args = null;
         private AsyncTcpClient client;
         private String currentFileName;
         private Bitmap bitmap;
+        private bool emptySignature = true;
 
         int tempIndex = 0;
 
         #endregion
+
 
 
         public MainForm()
@@ -46,6 +51,7 @@ namespace PaperlessPrint
             currentFileName = this.args[0];
             CheckForIllegalCrossThreadCalls = false;
         }
+
 
 
         #region UI Events
@@ -102,12 +108,44 @@ namespace PaperlessPrint
         }
 
         /// <summary>
-        /// TODO, 笔迹合成 生成pdf  上传ftp
+        /// 合成 生成pdf  上传ftp
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnConfirmSign_Click(object sender, EventArgs e)
         {
+            if(bitmap != null && !emptySignature)
+            {
+                //Save signature jpg
+                if (!Directory.Exists(Constants.TempFileFolder))
+                {
+                    Directory.CreateDirectory(Constants.TempFileFolder);
+                }
+
+                //保存临时签名图像文件
+                string filename = Constants.TempFileFolder + "/" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
+                //Bitmap tempBitmap = new Bitmap(picSignature.Width, picSignature.Height);
+                //Graphics g = Graphics.FromImage(tempBitmap);
+                //g.Clear(System.Drawing.Color.White);
+                //g.DrawImage(bitmap, 0, 0);
+                //tempBitmap.Save(filename, System.Drawing.Imaging.ImageFormat.Png);
+                bitmap.Save(filename, System.Drawing.Imaging.ImageFormat.Png);
+
+                //合并生成PDF
+                GeneratePDF(currentFileName, filename);
+
+                //上传FTP TODO
+
+                SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
+
+                //清除文件
+                CleanTempFile(filename);
+            }
+            else
+            {
+                MessageBox.Show("签名未完成，请重试！");
+            }
+
             //Local debug 
             if (currentFileName.IndexOf("test") >= 0)
             {
@@ -142,8 +180,8 @@ namespace PaperlessPrint
         #endregion
 
 
-        #region Private Functions
 
+        #region Private Functions
 
         private void InitUI()
         {
@@ -209,6 +247,51 @@ namespace PaperlessPrint
             panel.DrawLine(pen, pX / Constants.DesktopSignatureScale, pY / Constants.DesktopSignatureScale, nX / Constants.DesktopSignatureScale, nY / Constants.DesktopSignatureScale);
 
             picSignature.CreateGraphics().DrawImageUnscaled(bitmap, new Point(0, 0));
+        }
+
+        private void GeneratePDF(string f1, string f2)
+        {
+            Document doc = new Document(PageSize.A4, 0, 0, 0, 0);
+            PdfWriter.GetInstance(doc, new FileStream(f2.Replace(".png",".pdf"), FileMode.Create));
+            doc.Open();
+
+            iTextSharp.text.Image img1 = iTextSharp.text.Image.GetInstance(f1);
+            img1.ScalePercent(100f);
+            doc.Add(img1);
+
+            iTextSharp.text.Image img2 = iTextSharp.text.Image.GetInstance(f2);
+            img2.ScalePercent(100f);
+            doc.Add(img2);
+
+            doc.Close();
+        }
+
+        private void CleanTempFileFolder()
+        {
+            //Clean local jpg files
+            foreach (string d in Directory.GetFileSystemEntries(Constants.TempFileFolder))
+            {
+                if (File.Exists(d))
+                {
+                    try
+                    {
+                        File.Delete(d);
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private void CleanTempFile(string filename)
+        {
+            if (File.Exists(filename))
+            {
+                try
+                {
+                    File.Delete(filename);
+                }
+                catch { }
+            }
         }
 
         #endregion
@@ -285,7 +368,8 @@ namespace PaperlessPrint
             }
             else if(cmd.IndexOf(NetWorkCommand.DRAW)>=0)
             {
-                String[] cmds = cmd.Split('#');
+                emptySignature = false;
+                String[] cmds = cmd.Split(NetWorkCommand.CMD.ToArray());
                 foreach (String c in cmds)
                 {
                     String[] arg = c.Split(':');
@@ -295,6 +379,7 @@ namespace PaperlessPrint
             }
             else if(cmd.IndexOf(NetWorkCommand.CLEAN)>=0)
             {
+                emptySignature = true;
                 bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
                 Graphics.FromImage(bitmap).Clear(Color.Transparent);
                 picSignature.Refresh();
@@ -303,7 +388,7 @@ namespace PaperlessPrint
 
         private void DatagramReceived(object sender, TcpDatagramReceivedEventArgs<byte[]> e)
         {
-            if (e.Datagram[0] == 35)     // Start with # is plaint CMD
+            if (e.Datagram[0] == 35 && e.Datagram[1] == 35 )     // Start with ## is plaint CMD
             {
                 string cmd = System.Text.Encoding.Default.GetString(e.Datagram);
             }
@@ -312,16 +397,6 @@ namespace PaperlessPrint
         #endregion
 
         
-        
-
-
-
-
-
-
-
-
-
     }
 
 

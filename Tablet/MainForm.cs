@@ -294,7 +294,7 @@ namespace Tablet
         private void DatagramReceived(object sender, TcpDatagramReceivedEventArgs<byte[]> e)
         {
             currentClient = e.TcpClient;
-            if(e.Datagram[0] == 35 && e.Datagram.Length<30)     // Start with # is plaint CMD
+            if (e.Datagram[0] == 35 && e.Datagram[1] == 35 && e.Datagram.Length < 30)     // Start with ## is plaint CMD
             {
                 string cmd = System.Text.Encoding.Default.GetString(e.Datagram);
                 if (cmd.IndexOf(NetWorkCommand.SEND_FILE) >= 0)
@@ -303,6 +303,10 @@ namespace Tablet
                     receiveFileSize = size;
                     UpdateReceiveProgress(0);
                     CleanSignature();
+                }
+                else if (cmd.IndexOf(NetWorkCommand.SIGNATURE_DONE) >= 0)
+                {
+                    //CleanSignature();
                 }
                 else
                 {
@@ -328,8 +332,8 @@ namespace Tablet
                 fs.Close();
                 picPreview.ImageLocation = Constants.TempFileFolder + "\\" + filename;
                 Log(string.Format(CultureInfo.InvariantCulture, "{0} received from {1}", filename, e.TcpClient.Client.RemoteEndPoint.ToString()));
-                
-                server.Send(e.TcpClient, NetWorkCommand.FILE_SAVED);
+
+                server.Send(e.TcpClient, NetWorkCommand.FILE_RECEIVED);
                 
                 currentFileSize = receiveFileSize = 0;
                 TempBuffer = new byte[0];
