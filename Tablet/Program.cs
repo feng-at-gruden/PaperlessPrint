@@ -6,6 +6,11 @@ using System.Windows.Forms;
 
 namespace Tablet
 {
+    /// <summary>
+    /// https://msdn.microsoft.com/en-us/windows/uwp/input-and-devices/pen-and-stylus-interactions
+    /// http://www.codeproject.com/Articles/17895/Handling-Touch-Pen-or-Mouse-Digitizer-input-in-you
+    /// http://stackoverflow.com/questions/40330046/capture-stylus-writings-from-c-sharp-panel
+    /// </summary>
     static class Program
     {
         /// <summary>
