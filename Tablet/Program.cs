@@ -10,6 +10,8 @@ namespace Tablet
     /// https://msdn.microsoft.com/en-us/windows/uwp/input-and-devices/pen-and-stylus-interactions
     /// http://www.codeproject.com/Articles/17895/Handling-Touch-Pen-or-Mouse-Digitizer-input-in-you
     /// http://stackoverflow.com/questions/40330046/capture-stylus-writings-from-c-sharp-panel
+    /// http://www.cnblogs.com/Aran-Wang/p/4816294.html
+    /// https://www.kirupa.com/blend_wpf/inkcanvas_pg1.htm
     /// </summary>
     static class Program
     {
