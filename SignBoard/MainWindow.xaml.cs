@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Ink;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
@@ -38,6 +39,8 @@ namespace SignBoard
         private long currentFileSize = 0;
         private TcpClient currentClient;
 
+        ImageBrush formBG;
+
         private bool drawing;
         private int pX = -1;
         private int pY = -1;
@@ -56,7 +59,6 @@ namespace SignBoard
 
 
 
-
         #region UI Events
 
         private void btnClean_Click(object sender, RoutedEventArgs e)
@@ -67,6 +69,15 @@ namespace SignBoard
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             CleanTempFiles();
+        }
+
+        private void Window_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Escape)
+            {
+                //TODO, 显示退出确认密码框
+                this.Close();
+            }
         }
 
         #endregion
@@ -81,28 +92,39 @@ namespace SignBoard
         /// </summary>
         private void InitUI()
         {
-            //imgBill.Width = this.Width;
-            //imgBill.Height = this.Height;
+            formBG = new ImageBrush();
+            formBG.Stretch = Stretch.Fill;
+
+            inkCanvas1.Strokes.StrokesChanged += this.Strokes_StrokesChanged;
         }
 
 
         private void Log(string log)
         {
-            //this.Title = log;
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(
+                        () => this.Title = log, System.Windows.Threading.DispatcherPriority.Normal);
+            }
+            else
+            {
+                this.Title = log;
+            }
         }
 
         private void DisplayBill(string filename)
         {
             string path = string.Format("{0}\\{1}\\{2}", Directory.GetCurrentDirectory(), Constants.TempFileFolder, filename);
-            BitmapImage b = new BitmapImage();
-            b.BeginInit();
-            b.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
-            b.EndInit();
-            imgBill.Source = b;
+
+            formBG.ImageSource = new BitmapImage(new Uri(path, UriKind.RelativeOrAbsolute));
+            inkCanvas1.Background = formBG;
         }
 
         private void CleanSignature()
         {
+            if (inkCanvas1.Strokes != null)
+            inkCanvas1.Strokes.Clear();
+
             //TODO
             if (currentClient != null)
                 server.Send(currentClient, NetWorkCommand.CLEAN);
@@ -113,10 +135,14 @@ namespace SignBoard
         /// </summary>
         private void CleanTempFiles()
         {
-            //Clean local jpg files
+            if (!Directory.Exists(Constants.TempFileFolder))
+            {
+                return;
+            }
+            //Clean local temp files
             foreach (string d in Directory.GetFileSystemEntries(Constants.TempFileFolder))
             {
-                if (File.Exists(d) && d.IndexOf(".jpg") > 0)
+                if (File.Exists(d))
                 {
                     try
                     {
@@ -202,11 +228,28 @@ namespace SignBoard
                     long size = long.Parse(cmd.Split(':')[1]);
                     receiveFileSize = size;
                     //UpdateReceiveProgress(0);
-                    //CleanSignature();
+                    if (!Dispatcher.CheckAccess())
+                    {
+                        Dispatcher.Invoke(
+                                () => CleanSignature(), System.Windows.Threading.DispatcherPriority.Normal);
+                    }
+                    else
+                    {
+                        CleanSignature();
+                    }
+                    
                 }
                 else if (cmd.IndexOf(NetWorkCommand.SIGNATURE_DONE) >= 0)
                 {
-                    //CleanSignature();
+                    if (!Dispatcher.CheckAccess())
+                    {
+                        Dispatcher.Invoke(
+                                () => CleanSignature(), System.Windows.Threading.DispatcherPriority.Normal);
+                    }
+                    else
+                    {
+                        CleanSignature();
+                    }
                 }
                 else
                 {
@@ -263,7 +306,53 @@ namespace SignBoard
                 server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0}:{1}:{2}:{3}:{4}", NetWorkCommand.DRAW, pX, pY, nX, nY));
         }
 
+        private void DrawLineToReception(Stroke stroke)
+        {
+            string s = "";
+            foreach (var p in stroke.StylusPoints)
+            {
+                s += string.Format("{0},{1},{2}:", p.X, p.Y, p.PressureFactor);
+            }
+            if (currentClient != null)
+                server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0}:{1}", NetWorkCommand.STYLUS, s));
+        }
+
         #endregion
+
+
+        private void inkCanvas1_StylusMove(object sender, StylusEventArgs e)
+        {
+            
+        }
+
+        private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
+        {
+            if (e.Added != null && e.Added.Count > 0)
+            {
+                Log(e.Added.Count + " - added " + DateTime.Now.Ticks);
+                foreach(var s in e.Added)
+                {
+                    DrawLineToReception(s);
+                    /*
+                    double lX=0, lY=0;
+                    foreach(var p in s.StylusPoints)
+                    {
+                        lX = lX==0 ? p.X : lX;
+                        lY = lY == 0 ? p.Y : lY;
+
+                        DrawLineToReception((int)p.X, (int)p.Y, (int)lX, (int)lY);
+                        lX = p.X;
+                        lY = p.Y;
+                    }*/
+                }
+
+            }
+
+            if (e.Removed != null && e.Removed.Count > 0)
+            {
+                Log(e.Removed.Count + " - removed " + DateTime.Now.Ticks);
+            }
+        }
 
         
 

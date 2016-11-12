@@ -8,13 +8,14 @@ namespace Common
 {
     public static class Constants
     {
+
         public static bool DEBUG = false;
         public const String Version = "v0.1";
 
-        public const String TempFileFolder = "tmp";
+        public const String TempFileFolder = "tmp";         //临时文件存储目录
 
-        //public const String TabletIP = "192.168.31.22";  
-        public const String TabletIP = "172.23.0.33";
+        public const String TabletIP = "192.168.31.33";  
+        //public const String TabletIP = "172.23.0.33";
         //public const String TabletIP = "192.168.1.101";
         public const Int32 TabletPort = 12345;
         public const Int32 MaxClients = 5;
@@ -25,6 +26,8 @@ namespace Common
 
         public const int PenWidth = 5;
         public const int DesktopSignatureScale = 1;     //1:1 Scale
+
+        public const int MaxTryConnect = 5;         //前台连接平板尝试次数 5*0.5秒
 
     }
 
@@ -37,6 +40,7 @@ namespace Common
 
         public const String QUIT = CMD + "QUIT";
         public const String DRAW = CMD + "DRAW";
+        public const String STYLUS = CMD + "STYLUS";
         public const String CLEAN = CMD + "CLEAN";
         public const String SIGNATURE_DONE = CMD + "SIGNATURE_DONE";
         public const String SEND_FILE = CMD + "SEND_FILE";

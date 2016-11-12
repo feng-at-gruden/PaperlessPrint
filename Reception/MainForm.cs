@@ -33,6 +33,7 @@ namespace PaperlessPrint
         private bool emptySignature = true;
 
         int tempIndex = 0;
+        
 
         #endregion
 
@@ -72,6 +73,7 @@ namespace PaperlessPrint
             }
             else
             {
+                MessageBox.Show("启动参数错误");
                 this.Close();
             }
         }
@@ -105,6 +107,16 @@ namespace PaperlessPrint
         private void btnPrint_Click(object sender, EventArgs e)
         {
             //SendPlaintText(NetWorkCommand.SHOW_BILL + ":" + currentFileName);
+            //Local debug 
+            if (currentFileName.IndexOf("test") >= 0)
+            {
+                string index = currentFileName.Substring(7, 1);
+                tempIndex++;
+                if (tempIndex > 3)
+                    tempIndex = 0;
+                currentFileName = currentFileName.Replace(index, tempIndex.ToString());
+            }
+            ReviewBill(currentFileName);
         }
 
         /// <summary>
@@ -146,15 +158,6 @@ namespace PaperlessPrint
                 MessageBox.Show("签名未完成，请重试！");
             }
 
-            //Local debug 
-            if (currentFileName.IndexOf("test") >= 0)
-            {
-                string index = currentFileName.Substring(7, 1);
-                currentFileName = currentFileName.Replace(index, tempIndex++.ToString());
-                if (tempIndex > 4)
-                    tempIndex = 0;
-            }
-            ReviewBill(currentFileName);
         }
 
         /// <summary>
@@ -229,6 +232,18 @@ namespace PaperlessPrint
         
         private void ReviewBill(String filepath)
         {
+            int retry = 0;
+            while (!client.Connected)
+            {
+                Thread.Sleep(500);
+                retry++;
+                if (retry >= Constants.MaxTryConnect)
+                {
+                    MessageBox.Show("签字板连接错误");
+                    Application.Exit();
+                    return;
+                }
+            }
             //Open in local
 
             //Send to Tablet
@@ -381,6 +396,28 @@ namespace PaperlessPrint
                     String[] arg = c.Split(':');
                     if (arg.Length == 5)
                         DrawLine(int.Parse(arg[1]), int.Parse(arg[2]), int.Parse(arg[3]), int.Parse(arg[4]));
+                }
+            }
+            else if (cmd.IndexOf(NetWorkCommand.STYLUS) >= 0)
+            {
+                emptySignature = false;
+                String[] cmds = cmd.Split(NetWorkCommand.CMD.ToArray());
+                foreach (String c in cmds)
+                {
+                    String[] arg = c.Split(':');
+                    int lX = 0, lY = 0;
+                    foreach(var ps in arg)
+                    {
+                        String[] p = ps.Split(',');
+                        if (p.Length == 3)
+                        {
+                            lX = lX == 0? (int)double.Parse(p[0]) : lX;
+                            lY = lY == 0 ? (int)double.Parse(p[1]) : lY;
+                            DrawLine(lX, lY, (int)double.Parse(p[0]), (int)double.Parse(p[1]));
+                            lX = (int)double.Parse(p[0]);
+                            lY = (int)double.Parse(p[1]);
+                        }
+                    }
                 }
             }
             else if(cmd.IndexOf(NetWorkCommand.CLEAN)>=0)
