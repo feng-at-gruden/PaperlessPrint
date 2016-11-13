@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SignBoard", "SignBoard\Sign
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reception", "Reception\Reception.csproj", "{17047B97-303A-48F3-B619-71020D7570F9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WinForm", "WinForm", "{029BB566-C53A-4313-A2BA-D4F8F0ED2026}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WPF", "WPF", "{7B28B0A1-C9D3-4EBB-B688-0504C76A72A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +40,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{380BB524-E314-4299-89DC-DEFF616B0995} = {029BB566-C53A-4313-A2BA-D4F8F0ED2026}
+		{17047B97-303A-48F3-B619-71020D7570F9} = {029BB566-C53A-4313-A2BA-D4F8F0ED2026}
+		{2D0B91AF-238D-4059-93B8-608724E465F3} = {7B28B0A1-C9D3-4EBB-B688-0504C76A72A2}
 	EndGlobalSection
 EndGlobal

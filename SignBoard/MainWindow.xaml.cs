@@ -92,8 +92,24 @@ namespace SignBoard
         /// </summary>
         private void InitUI()
         {
+            double screenWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
+            double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
+
+            //Update grid size
+            grid1.SetValue(Grid.WidthProperty, screenHeight);
+            grid1.SetValue(Grid.HeightProperty, screenWidth);
+            RotateTransform rt = new RotateTransform(-90, 0.5, 0.5);
+            grid1.LayoutTransform = rt;
+
+
+            //inkCanvas BG
             formBG = new ImageBrush();
             formBG.Stretch = Stretch.Fill;
+
+            //Update inkCanvas size;
+            int h = (int)Math.Ceiling(Constants.A4Height * screenHeight / Constants.A4Width);
+            inkCanvas1.SetValue(InkCanvas.WidthProperty, screenHeight);
+            inkCanvas1.SetValue(InkCanvas.HeightProperty, h + 0d);
 
             inkCanvas1.Strokes.StrokesChanged += this.Strokes_StrokesChanged;
         }
@@ -314,7 +330,15 @@ namespace SignBoard
                 s += string.Format("{0},{1},{2}:", p.X, p.Y, p.PressureFactor);
             }
             if (currentClient != null)
-                server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0}:{1}", NetWorkCommand.STYLUS, s));
+            {
+                int w=0, h=0;           //传递本地inkCanvas尺寸
+                w = (int)inkCanvas1.Width;
+                h = (int)inkCanvas1.Height;
+                int sw, sh;
+                sw = (int)System.Windows.SystemParameters.PrimaryScreenWidth;
+                sh = (int)System.Windows.SystemParameters.PrimaryScreenHeight;
+                server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3},{4}:{5}",NetWorkCommand.STYLUS, w, h, sw, sh, s));
+            }
         }
 
         #endregion

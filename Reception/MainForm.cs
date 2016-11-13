@@ -32,7 +32,7 @@ namespace PaperlessPrint
         private Bitmap bitmap;
         private bool emptySignature = true;
 
-        int tempIndex = 0;
+        int tempIndex = -1;
         
 
         #endregion
@@ -107,13 +107,18 @@ namespace PaperlessPrint
         private void btnPrint_Click(object sender, EventArgs e)
         {
             //SendPlaintText(NetWorkCommand.SHOW_BILL + ":" + currentFileName);
+
             //Local debug 
             if (currentFileName.IndexOf("test") >= 0)
             {
                 string index = currentFileName.Substring(7, 1);
+                if (tempIndex == -1)
+                    tempIndex = int.Parse(index);
+
                 tempIndex++;
-                if (tempIndex > 3)
+                if (tempIndex > 4)
                     tempIndex = 0;
+
                 currentFileName = currentFileName.Replace(index, tempIndex.ToString());
             }
             ReviewBill(currentFileName);
@@ -202,22 +207,11 @@ namespace PaperlessPrint
             System.Drawing.Rectangle rect = System.Windows.Forms.Screen.PrimaryScreen.Bounds;
             int h = rect.Height - SystemInformation.CaptionHeight - SystemInformation.MenuHeight;   //Cut off title bar heigth and task bar heith;
             this.Height = h;
-            this.Width = (int)Math.Floor((Double)Constants.A4Width * h / Constants.A4Height);
+            this.Width = (int)Math.Floor((Double)Constants.A4Width * h * 1d / Constants.A4Height);
             btnConfirmSign.Left = btnPrint.Left = btnClose.Left = this.Width - 22 - btnClose.Width;
             toolStripStatusLabel1.Text = Constants.Version;
 
             //Signature preview area
-            if(Constants.DesktopSignatureScale > 1)
-            {
-                picSignature.Width = (int) this.Width / Constants.DesktopSignatureScale;
-                picSignature.Height = (int)this.Height / Constants.DesktopSignatureScale;
-                picSignature.Top = this.Height - picSignature.Height - statusStrip1.Height - 54;
-                picSignature.Left = this.Width - picSignature.Width - 40;
-            }
-            else
-            {
-                picSignature.Dock = DockStyle.Fill;
-            }
             picSignature.Parent = picReview;
             bitmap = new Bitmap(picSignature.Width, picSignature.Height, picSignature.CreateGraphics());
             Graphics.FromImage(bitmap).Clear(Color.Transparent);
@@ -252,18 +246,50 @@ namespace PaperlessPrint
             SendFile(filepath);
         }
 
+        /// <summary>
+        /// 画点
+        /// </summary>
+        /// <param name="pX"></param>
+        /// <param name="pY"></param>
+        /// <param name="nX"></param>
+        /// <param name="nY"></param>
         private void DrawLine(int pX, int pY, int nX, int nY)
         {
             Graphics panel = Graphics.FromImage(bitmap);
 
-            Pen pen = new Pen(Color.Black, Math.Max(Constants.PenWidth / Constants.DesktopSignatureScale, 1));
+            Pen pen = new Pen(Color.Black, Constants.PenWidth);
 
             pen.EndCap = LineCap.Round;
             pen.StartCap = LineCap.Round;
 
-            panel.DrawLine(pen, pX / Constants.DesktopSignatureScale, pY / Constants.DesktopSignatureScale, nX / Constants.DesktopSignatureScale, nY / Constants.DesktopSignatureScale);
+            panel.DrawLine(pen, pX, pY, nX, nY);
 
             picSignature.CreateGraphics().DrawImageUnscaled(bitmap, new Point(0, 0));
+        }
+
+        /// <summary>
+        /// 转换为本设备坐标 画线
+        /// </summary>
+        /// <param name="sourceCanvasSizeW"></param>
+        /// <param name="sourceCanvasSizeH"></param>
+        /// <param name="sourceScreenW"></param>
+        /// <param name="sourceScreenH"></param>
+        /// <param name="pX"></param>
+        /// <param name="pY"></param>
+        /// <param name="nX"></param>
+        /// <param name="nY"></param>
+        private void DrawLine(int sourceCanvasSizeW, int sourceCanvasSizeH, int sourceScreenW, int sourceScreenH, int pX, int pY, int nX, int nY)
+        {
+            int cw = picReview.Width;
+            int ch = picReview.Height;
+            int nsx = 0, nsy = 0, ntx = 0, nty = 0;
+            double feed = cw * 1d / sourceCanvasSizeW;
+            nsx = (int)Math.Ceiling(pX * feed);
+            nsy = (int)Math.Ceiling(pY * feed);
+            ntx = (int)Math.Ceiling(nX * feed);
+            nty = (int)Math.Ceiling(nY * feed);
+
+            DrawLine(nsx, nsy, ntx, nty);
         }
 
         private void GeneratePDF(string f1, string f2)
@@ -406,14 +432,24 @@ namespace PaperlessPrint
                 {
                     String[] arg = c.Split(':');
                     int lX = 0, lY = 0;
+                    int scw = 0, sch = 0, ssw = 0, ssh = 0;
                     foreach(var ps in arg)
                     {
                         String[] p = ps.Split(',');
+                        if(p.Length == 5)
+                        {
+                            //接收签名设备屏幕信息
+                            scw = int.Parse(p[1]);
+                            sch = int.Parse(p[2]);
+                            ssw = int.Parse(p[3]);
+                            ssh = int.Parse(p[4]);
+                        }
+
                         if (p.Length == 3)
                         {
                             lX = lX == 0? (int)double.Parse(p[0]) : lX;
                             lY = lY == 0 ? (int)double.Parse(p[1]) : lY;
-                            DrawLine(lX, lY, (int)double.Parse(p[0]), (int)double.Parse(p[1]));
+                            DrawLine(scw, sch, ssw, ssh, lX, lY, (int)double.Parse(p[0]), (int)double.Parse(p[1]));
                             lX = (int)double.Parse(p[0]);
                             lY = (int)double.Parse(p[1]);
                         }

@@ -8,7 +8,6 @@ namespace Common
 {
     public static class Constants
     {
-
         public static bool DEBUG = false;
         public const String Version = "v0.1";
 
@@ -24,9 +23,7 @@ namespace Common
         public const int A4Width = 595;
         public const int A4Height = 842;
 
-        public const int PenWidth = 5;
-        public const int DesktopSignatureScale = 1;     //1:1 Scale
-
+        public const int PenWidth = 1;
         public const int MaxTryConnect = 5;         //前台连接平板尝试次数 5*0.5秒
 
     }

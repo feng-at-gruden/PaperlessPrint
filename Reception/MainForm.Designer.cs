@@ -45,16 +45,16 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel1});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 719);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 709);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(579, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(579, 24);
             this.statusStrip1.TabIndex = 4;
             this.statusStrip1.Text = "statusStrip1";
             // 
             // toolStripStatusLabel1
             // 
             this.toolStripStatusLabel1.Name = "toolStripStatusLabel1";
-            this.toolStripStatusLabel1.Size = new System.Drawing.Size(131, 17);
+            this.toolStripStatusLabel1.Size = new System.Drawing.Size(141, 19);
             this.toolStripStatusLabel1.Text = "toolStripStatusLabel1";
             // 
             // txtLog
@@ -63,7 +63,7 @@
             this.txtLog.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.txtLog.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.txtLog.ForeColor = System.Drawing.Color.Yellow;
-            this.txtLog.Location = new System.Drawing.Point(0, 623);
+            this.txtLog.Location = new System.Drawing.Point(0, 613);
             this.txtLog.Name = "txtLog";
             this.txtLog.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.txtLog.Size = new System.Drawing.Size(579, 96);
@@ -78,7 +78,7 @@
             this.picReview.InitialImage = null;
             this.picReview.Location = new System.Drawing.Point(0, 0);
             this.picReview.Name = "picReview";
-            this.picReview.Size = new System.Drawing.Size(579, 719);
+            this.picReview.Size = new System.Drawing.Size(579, 709);
             this.picReview.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picReview.TabIndex = 13;
             this.picReview.TabStop = false;
@@ -120,11 +120,12 @@
             // picSignature
             // 
             this.picSignature.BackColor = System.Drawing.Color.Transparent;
+            this.picSignature.Dock = System.Windows.Forms.DockStyle.Fill;
             this.picSignature.ErrorImage = null;
             this.picSignature.InitialImage = null;
             this.picSignature.Location = new System.Drawing.Point(0, 0);
             this.picSignature.Name = "picSignature";
-            this.picSignature.Size = new System.Drawing.Size(20, 20);
+            this.picSignature.Size = new System.Drawing.Size(579, 613);
             this.picSignature.TabIndex = 19;
             this.picSignature.TabStop = false;
             this.picSignature.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.picReview_MouseDoubleClick);
@@ -133,7 +134,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(579, 741);
+            this.ClientSize = new System.Drawing.Size(579, 733);
             this.ControlBox = false;
             this.Controls.Add(this.btnConfirmSign);
             this.Controls.Add(this.btnClose);
@@ -142,7 +143,7 @@
             this.Controls.Add(this.txtLog);
             this.Controls.Add(this.picReview);
             this.Controls.Add(this.statusStrip1);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.MaximizeBox = false;
             this.Name = "MainForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
