@@ -134,14 +134,15 @@ namespace SignBoard
 
             formBG.ImageSource = new BitmapImage(new Uri(path, UriKind.RelativeOrAbsolute));
             inkCanvas1.Background = formBG;
+            UpdateReceiveProgress(0);
         }
 
         private void CleanSignature()
         {
+            UpdateReceiveProgress(0);
             if (inkCanvas1.Strokes != null)
-            inkCanvas1.Strokes.Clear();
+                inkCanvas1.Strokes.Clear();
 
-            //TODO
             if (currentClient != null)
                 server.Send(currentClient, NetWorkCommand.CLEAN);
         }
@@ -167,6 +168,11 @@ namespace SignBoard
                     catch { }
                 }
             }
+        }
+
+        private void UpdateReceiveProgress(int p)
+        {
+            progressBar1.SetValue(ProgressBar.ValueProperty, p + 0d);
         }
 
         /// <summary>
@@ -243,7 +249,6 @@ namespace SignBoard
                 {
                     long size = long.Parse(cmd.Split(':')[1]);
                     receiveFileSize = size;
-                    //UpdateReceiveProgress(0);
                     if (!Dispatcher.CheckAccess())
                     {
                         Dispatcher.Invoke(
@@ -280,7 +285,15 @@ namespace SignBoard
                 currentFileSize += e.Datagram.Length;
                 TempBuffer = CopyToByteArry(TempBuffer, e.Datagram);
                 int p = (int)Math.Floor((double)currentFileSize * 100 / receiveFileSize);
-                //UpdateReceiveProgress(p);
+                if (!Dispatcher.CheckAccess())
+                {
+                    Dispatcher.Invoke(
+                            () => UpdateReceiveProgress(p), System.Windows.Threading.DispatcherPriority.Normal);
+                }
+                else
+                {
+                    UpdateReceiveProgress(p);
+                }
             }
             if (currentFileSize == receiveFileSize && receiveFileSize > 0)
             {
