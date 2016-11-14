@@ -13,8 +13,8 @@ namespace Common
 
         public const String TempFileFolder = "tmp";         //临时文件存储目录
 
-        public const String TabletIP = "192.168.31.33";  
-        //public const String TabletIP = "172.23.0.33";
+        //public const String TabletIP = "192.168.31.33";  
+        public const String TabletIP = "172.23.0.33";
         //public const String TabletIP = "192.168.1.101";
         public const Int32 TabletPort = 12345;
         public const Int32 MaxClients = 5;
