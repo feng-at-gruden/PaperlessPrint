@@ -424,7 +424,7 @@ namespace PaperlessPrint
                         DrawLine(int.Parse(arg[1]), int.Parse(arg[2]), int.Parse(arg[3]), int.Parse(arg[4]));
                 }
             }
-            else if (cmd.IndexOf(NetWorkCommand.STYLUS) >= 0)
+            else if (cmd.IndexOf(NetWorkCommand.STYLUS_ADD) >= 0)
             {
                 emptySignature = false;
                 String[] cmds = cmd.Split(NetWorkCommand.CMD.ToArray());

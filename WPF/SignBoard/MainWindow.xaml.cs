@@ -84,18 +84,21 @@ namespace SignBoard
         {
             if (e.Added != null && e.Added.Count > 0)
             {
-                Log(e.Added.Count + " - added " + DateTime.Now.Ticks);
+                //Log(e.Added.Count + " - added " + DateTime.Now.Ticks);
                 foreach (var s in e.Added)
                 {
-                    DrawLineToReception(s);
+                    UpdateLineToReception(s, true);
                 }
 
             }
 
             if (e.Removed != null && e.Removed.Count > 0)
             {
-                //TODO
-                Log(e.Removed.Count + " - removed " + DateTime.Now.Ticks);
+                //Log(e.Removed.Count + " - removed " + DateTime.Now.Ticks);
+                foreach (var s in e.Removed)
+                {
+                    UpdateLineToReception(s, false);
+                }
             }
         }
 
@@ -360,7 +363,7 @@ namespace SignBoard
                 server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0}:{1}:{2}:{3}:{4}", NetWorkCommand.DRAW, pX, pY, nX, nY));
         }
 
-        private void DrawLineToReception(Stroke stroke)
+        private void UpdateLineToReception(Stroke stroke, bool add)
         {
             string s = "";
             foreach (var p in stroke.StylusPoints)
@@ -375,7 +378,8 @@ namespace SignBoard
                 int sw, sh;
                 sw = (int)System.Windows.SystemParameters.PrimaryScreenWidth;
                 sh = (int)System.Windows.SystemParameters.PrimaryScreenHeight;
-                server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3},{4}:{5}",NetWorkCommand.STYLUS, w, h, sw, sh, s));
+                String t = add ? NetWorkCommand.STYLUS_ADD : NetWorkCommand.STYLUS_REMOVE;
+                server.Send(currentClient, string.Format(CultureInfo.InvariantCulture, "{0},{1},{2},{3},{4}:{5}:{6}", t, w, h, sw, sh, s, NetWorkCommand.STYLUS_END));
             }
         }
 

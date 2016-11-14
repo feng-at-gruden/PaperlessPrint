@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Ink;
 using System.Net;
 using System.Globalization;
 using System.IO;
@@ -34,7 +35,8 @@ namespace Reception
         private string[] args = null;
         private AsyncTcpClient client;
         private String currentFileName;
-        private bool emptySignature = true;
+
+        double cWidth, cHeight;
 
         ImageBrush formBG;
 
@@ -89,11 +91,16 @@ namespace Reception
 
         }
 
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            cWidth = inkCanvas1.ActualWidth;
+            cHeight = inkCanvas1.ActualHeight; 
+        }
+
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             CloseNetWork();
         }
-
 
         #endregion
 
@@ -168,59 +175,67 @@ namespace Reception
                 Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
                 this.Close();
             }
-            else if (cmd.IndexOf(NetWorkCommand.DRAW) >= 0)
+            else if (cmd.IndexOf(NetWorkCommand.CLEAN) >= 0)
             {
-                emptySignature = false;
-                String[] cmds = cmd.Split(NetWorkCommand.CMD.ToArray());
-                foreach (String c in cmds)
-                {
-                    String[] arg = c.Split(':');
-                    if (arg.Length == 5)
-                    {
-                        //TODO
-                        //DrawLine(int.Parse(arg[1]), int.Parse(arg[2]), int.Parse(arg[3]), int.Parse(arg[4]));
-                    }
-                }
+                Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
+                CleanSignature();
             }
-            else if (cmd.IndexOf(NetWorkCommand.STYLUS) >= 0)
+            else if (cmd.IndexOf(NetWorkCommand.STYLUS_ADD) >= 0 || cmd.IndexOf(NetWorkCommand.STYLUS_REMOVE) >= 0)
             {
-                emptySignature = false;
+                if (cmd.IndexOf(NetWorkCommand.CLEAN) >= 0)
+                {
+                    CleanSignature();
+                    return;
+                }
+                
                 String[] cmds = cmd.Split(NetWorkCommand.CMD.ToArray());
                 foreach (String c in cmds)
                 {
                     String[] arg = c.Split(':');
-                    int lX = 0, lY = 0;
-                    int scw = 0, sch = 0, ssw = 0, ssh = 0;
+                    double lX = 0, lY = 0;
+                    float lP = 0;
+                    double scw = 0, sch = 0, ssw = 0, ssh = 0;
+                    StylusPointCollection pts = new StylusPointCollection();
+                    bool isAdd = true;
                     foreach (var ps in arg)
                     {
                         String[] p = ps.Split(',');
                         if (p.Length == 5)
                         {
+                            isAdd = NetWorkCommand.STYLUS_ADD.IndexOf(p[0])>=0;
                             //接收签名设备屏幕信息
-                            scw = int.Parse(p[1]);
-                            sch = int.Parse(p[2]);
-                            ssw = int.Parse(p[3]);
-                            ssh = int.Parse(p[4]);
+                            scw = double.Parse(p[1]);
+                            sch = double.Parse(p[2]);
+                            ssw = double.Parse(p[3]);
+                            ssh = double.Parse(p[4]);
                         }
 
                         if (p.Length == 3)
                         {
-                            lX = lX == 0 ? (int)double.Parse(p[0]) : lX;
-                            lY = lY == 0 ? (int)double.Parse(p[1]) : lY;
-                            //TODO
-                            //DrawLine(scw, sch, ssw, ssh, lX, lY, (int)double.Parse(p[0]), (int)double.Parse(p[1]));
-                            lX = (int)double.Parse(p[0]);
-                            lY = (int)double.Parse(p[1]);
+                            double feedX = cWidth * 1d / scw;
+                            double feedY = cHeight * 1d / sch;
+                            
+                            lX = double.Parse(p[0]);
+                            lY = double.Parse(p[1]);
+                            lP = float.Parse(p[2]);
+                            pts.Add(new StylusPoint(lX * feedX, lY * feedY, lP));
+                        }
+                    }
+                    if (pts.Count > 0)
+                    {
+                        if (!Dispatcher.CheckAccess())
+                        {
+                            Dispatcher.Invoke(
+                                    () => DrawLine(pts, isAdd), System.Windows.Threading.DispatcherPriority.Normal);
+                        }
+                        else
+                        {
+                            DrawLine(pts, isAdd);
                         }
                     }
                 }
             }
-            else if (cmd.IndexOf(NetWorkCommand.CLEAN) >= 0)
-            {
-                Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
-                emptySignature = true;
-                inkCanvas1.Strokes.Clear();
-            }
+            
         }
 
         private void DatagramReceived(object sender, TcpDatagramReceivedEventArgs<byte[]> e)
@@ -235,15 +250,13 @@ namespace Reception
 
 
 
-
         #region Private Functions
 
         private void InitUI()
         {
-            double screenWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
             double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
             double h = screenHeight - SystemParameters.CaptionHeight - SystemParameters.MenuBarHeight;
-            double w = Math.Floor((Double)Constants.A4Width * h * 1d / Constants.A4Height);
+            double w = Math.Floor(Constants.A4Width * h/ Constants.A4Height);
 
             this.SetValue(Window.WidthProperty, w);
             this.SetValue(Window.HeightProperty, h);
@@ -301,19 +314,32 @@ namespace Reception
         /// <param name="pY"></param>
         /// <param name="nX"></param>
         /// <param name="nY"></param>
-        private void DrawLine(int sourceCanvasSizeW, int sourceCanvasSizeH, int sourceScreenW, int sourceScreenH, int pX, int pY, int nX, int nY, double weight)
+        private void DrawLine(StylusPointCollection pts, bool add)
         {
-            int cw = (int)imgBill.GetValue(System.Windows.Controls.Image.WidthProperty);
-            int ch = (int)imgBill.GetValue(System.Windows.Controls.Image.HeightProperty);
-            int nsx = 0, nsy = 0, ntx = 0, nty = 0;
-            double feed = cw * 1d / sourceCanvasSizeW;
-            nsx = (int)Math.Ceiling(pX * feed);
-            nsy = (int)Math.Ceiling(pY * feed);
-            ntx = (int)Math.Ceiling(nX * feed);
-            nty = (int)Math.Ceiling(nY * feed);
+            Stroke s = new Stroke(pts);
+            s.DrawingAttributes.Color = Colors.Red;
+            if (add)
+            {
+                inkCanvas1.Strokes.Add(s);
+            }
+            else
+            {
+                //TODO;
+                //inkCanvas1.Strokes.Remove(s);
+            }
+        }
 
-            //TODO, add to local inkCanvas
-
+        private void CleanSignature()
+        {
+            if (!Dispatcher.CheckAccess())
+            {
+                Dispatcher.Invoke(
+                        () => inkCanvas1.Strokes.Clear(), System.Windows.Threading.DispatcherPriority.Normal);
+            }
+            else
+            {
+                inkCanvas1.Strokes.Clear();
+            }
         }
 
         private void GeneratePDF(string f1, string f2)
@@ -365,6 +391,8 @@ namespace Reception
         }
 
         #endregion
+
+        
 
         
 

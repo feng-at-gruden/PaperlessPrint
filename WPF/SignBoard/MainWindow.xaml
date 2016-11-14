@@ -1,7 +1,7 @@
 ﻿<Window x:Class="SignBoard.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525" BorderBrush="Black" Foreground="White" Closing="Window_Closing" ResizeMode="NoResize" KeyDown="Window_KeyDown" WindowState="Maximized" WindowStyle="None" Background="Black" ShowInTaskbar="True" Topmost="False">
+        Title="MainWindow" Height="350" Width="525" BorderBrush="Black" Foreground="White" Closing="Window_Closing" ResizeMode="NoResize" KeyDown="Window_KeyDown" WindowState="Maximized" Background="Black" ShowInTaskbar="True" Topmost="False" BorderThickness="0" WindowStyle="None">
 
     <Grid x:Name="grid1" Background="Black" >
 
