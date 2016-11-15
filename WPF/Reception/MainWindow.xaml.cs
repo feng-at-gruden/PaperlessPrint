@@ -35,8 +35,8 @@ namespace Reception
         private string[] args = null;
         private AsyncTcpClient client;
         private String currentFileName;
-
-        double cWidth, cHeight;
+        private double billImageW, billImageH;          //账单图像文件尺寸
+        //double cWidth, cHeight;                         //InkCanvas尺寸
 
         ImageBrush formBG;
 
@@ -54,7 +54,6 @@ namespace Reception
             {
                 currentFileName = this.args[0];
                 InitNetWork();
-                InitUI();
 
                 ReviewBill(currentFileName);
             }
@@ -86,20 +85,74 @@ namespace Reception
             ReviewBill(currentFileName);
         }
 
+        /// <summary>
+        ///  保存临时图像，生成PDF，上传FTP
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnConfirm_Click(object sender, RoutedEventArgs e)
         {
+            if(inkCanvas1.Strokes.Count<=0)
+            {
+                MessageBox.Show("签名为空，请重试！");
+                return;
+            }
 
+            //Save signature image
+            if (!Directory.Exists(Constants.TempFileFolder))
+            {
+                Directory.CreateDirectory(Constants.TempFileFolder);
+            }
+            string filename = Constants.TempFileFolder + "/" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
+
+            double width = inkCanvas1.ActualWidth;
+            double height = inkCanvas1.ActualHeight;
+            double dpi = 96d;
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap((int)Math.Round(width), (int)Math.Round(height), dpi, dpi, System.Windows.Media.PixelFormats.Default);
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                VisualBrush vb = new VisualBrush(inkCanvas1);
+                dc.DrawRectangle(vb, null, new Rect(new Point(), new System.Windows.Size(width, height)));
+            }
+            rtb.Render(dv);
+
+            BitmapEncoder pngEncoder = new PngBitmapEncoder();
+            pngEncoder.Frames.Add(BitmapFrame.Create(rtb));
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                pngEncoder.Save(ms);
+                System.IO.File.WriteAllBytes(filename, ms.ToArray());
+            }
+
+            //合并生成PDF
+            GeneratePDF(null, filename);
+
+            //上传FTP TODO
+
+            SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
+
+            //清除文件
+            //CleanTempFile(filename);
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            cWidth = inkCanvas1.ActualWidth;
-            cHeight = inkCanvas1.ActualHeight; 
+            //cWidth = inkCanvas1.ActualWidth;
+            //cHeight = inkCanvas1.ActualHeight;
+
+            double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
+            double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
+            ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
+            inkCanvas1.LayoutTransform = sf;
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             CloseNetWork();
+            //清除文件
+            //CleanTempFile(currentFileName);
         }
 
         #endregion
@@ -212,8 +265,8 @@ namespace Reception
 
                         if (p.Length == 3)
                         {
-                            double feedX = cWidth * 1d / scw;
-                            double feedY = cHeight * 1d / sch;
+                            double feedX = billImageW * 1d / scw;
+                            double feedY = billImageH * 1d / sch;
                             
                             lX = double.Parse(p[0]);
                             lY = double.Parse(p[1]);
@@ -254,19 +307,40 @@ namespace Reception
 
         private void InitUI()
         {
+            //Signature preview area
+            //inkCanvas BG
+            BitmapImage bg = loadImage(currentFileName);
+            Size imageSize = getImageSize(currentFileName);
+            billImageW = imageSize.Width;
+            billImageH = imageSize.Height;
+
+            //设置为inkCanvas为图片实际尺寸
+            inkCanvas1.SetValue(InkCanvas.WidthProperty, billImageW);
+            inkCanvas1.SetValue(InkCanvas.HeightProperty, billImageH);
+
+            formBG = new ImageBrush();
+            formBG.Stretch = Stretch.Fill;
+            //设置为背景
+            formBG.ImageSource = bg;
+            inkCanvas1.Background = formBG;
+            //设置窗体按比例尺寸
             double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
             double h = screenHeight - SystemParameters.CaptionHeight - SystemParameters.MenuBarHeight;
-            double w = Math.Floor(Constants.A4Width * h/ Constants.A4Height);
+            //double w = Math.Floor(Constants.A4Width * h/ Constants.A4Height);
+            double w = Math.Floor(billImageW * h / billImageH);
 
             this.SetValue(Window.WidthProperty, w);
             this.SetValue(Window.HeightProperty, h);
             this.SetValue(Window.TopProperty, 0d);
             this.SetValue(Window.LeftProperty, 0d);
+            //获取显示区域尺寸 并设置inkCanvas缩放比例
+            double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
+            double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
+            ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
+            inkCanvas1.LayoutTransform = sf;
 
-            //Signature preview area
-            //inkCanvas BG
-            formBG = new ImageBrush();
-            formBG.Stretch = Stretch.Fill;
+            //cWidth = inkCanvas1.ActualWidth;
+            //cHeight = inkCanvas1.ActualHeight; 
         }
 
         private void Log(String s)
@@ -274,16 +348,33 @@ namespace Reception
             //TODO
         }
 
-        private void ReviewBill(String filepath)
+
+        private BitmapImage loadImage(String filepath)
         {
             //Open in local
             BitmapImage bg = new BitmapImage();
             bg.BeginInit();
             bg.CacheOption = BitmapCacheOption.OnLoad;
-            bg.UriSource = new Uri(currentFileName, UriKind.RelativeOrAbsolute);
+            bg.UriSource = new Uri(filepath, UriKind.RelativeOrAbsolute);
             bg.EndInit();
-            formBG.ImageSource = bg;
-            inkCanvas1.Background = formBG;
+            return bg;
+        }
+
+        private Size getImageSize(string path)
+        {
+            using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
+            {
+                BitmapFrame frame = BitmapFrame.Create(fileStream, BitmapCreateOptions.DelayCreation, BitmapCacheOption.None);
+                Size s = new Size(frame.PixelWidth, frame.PixelHeight);
+                return s;
+            }
+        }
+
+        private void ReviewBill(String filepath)
+        {
+            currentFileName = filepath;
+            //Resize Window
+            InitUI();
 
             int retry = 0;
             while (!client.Connected)
@@ -299,7 +390,7 @@ namespace Reception
             }
             
             //Send to Tablet            
-            SendFile(filepath);
+            SendFile(currentFileName);
         }
 
 
@@ -348,16 +439,22 @@ namespace Reception
             PdfWriter.GetInstance(doc, new FileStream(f2.Replace(".png", ".pdf"), FileMode.Create));
             doc.Open();
 
-            iTextSharp.text.Image img1 = iTextSharp.text.Image.GetInstance(f1);
-            //img1.ScalePercent(1f);
-            img1.ScaleToFit(doc.PageSize);
-            img1.SetAbsolutePosition(0, 0);
-            doc.Add(img1);
+            if (f1 != null)
+            {
+                iTextSharp.text.Image img1 = iTextSharp.text.Image.GetInstance(f1);
+                //img1.ScalePercent(1f);
+                img1.ScaleToFit(doc.PageSize);
+                img1.SetAbsolutePosition(0, 0);
+                doc.Add(img1);
+            }
 
-            iTextSharp.text.Image img2 = iTextSharp.text.Image.GetInstance(f2);
-            img2.ScaleToFit(doc.PageSize);
-            img2.SetAbsolutePosition(0, 0);
-            doc.Add(img2);
+            if (f2 != null)
+            {
+                iTextSharp.text.Image img2 = iTextSharp.text.Image.GetInstance(f2);
+                img2.ScaleToFit(doc.PageSize);
+                img2.SetAbsolutePosition(0, 0);
+                doc.Add(img2);
+            }
 
             doc.Close();
         }
