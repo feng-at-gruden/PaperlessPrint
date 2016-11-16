@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Ink;
+using System.Configuration;
 using System.Net;
 using System.Globalization;
 using System.IO;
@@ -30,20 +31,21 @@ namespace Reception
     public partial class MainWindow : Window
     {
 
+
         #region Fields
 
         private string[] args = null;
         private AsyncTcpClient client;
         private String currentFileName;
         private double billImageW, billImageH;          //账单图像文件尺寸
-        //double cWidth, cHeight;                         //InkCanvas尺寸
 
         ImageBrush formBG;
 
         int tempIndex = -1;
 
-
         #endregion
+
+
 
         public MainWindow()
         {
@@ -60,6 +62,7 @@ namespace Reception
         }
 
 
+
         #region UI Events
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
@@ -69,20 +72,30 @@ namespace Reception
 
         private void btnPrint_Click(object sender, RoutedEventArgs e)
         {
-            //Local debug 
-            if (currentFileName.IndexOf("test") >= 0)
+            if (Constants.DEBUG)    //Local test
             {
-                string index = currentFileName.Substring(7, 1);
-                if (tempIndex == -1)
-                    tempIndex = int.Parse(index);
+                if (currentFileName.IndexOf("test") >= 0)
+                {
+                    string index = currentFileName.Substring(7, 1);
+                    if (tempIndex == -1)
+                        tempIndex = int.Parse(index);
 
-                tempIndex++;
-                if (tempIndex > 4)
-                    tempIndex = 0;
+                    tempIndex++;
+                    if (tempIndex > 4)
+                        tempIndex = 0;
 
-                currentFileName = currentFileName.Replace(index, tempIndex.ToString());
+                    currentFileName = currentFileName.Replace(index, tempIndex.ToString());
+                }
+                ReviewBill(currentFileName);
             }
-            ReviewBill(currentFileName);
+            else
+            {
+                PrintDialog dialog = new PrintDialog();
+                if (dialog.ShowDialog() == true)
+                {
+                    dialog.PrintVisual(inkCanvas1, "Print Test");
+                }
+            }
         }
 
         /// <summary>
@@ -94,54 +107,43 @@ namespace Reception
         {
             if(inkCanvas1.Strokes.Count<=0)
             {
-                MessageBox.Show("签名为空，请重试！");
+                MessageBox.Show("签名为空，请重试！","错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
             //Save signature image
-            if (!Directory.Exists(Constants.TempFileFolder))
-            {
-                Directory.CreateDirectory(Constants.TempFileFolder);
-            }
-            string filename = Constants.TempFileFolder + "/" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
-
-            double width = inkCanvas1.ActualWidth;
-            double height = inkCanvas1.ActualHeight;
-            double dpi = 96d;
-
-            RenderTargetBitmap rtb = new RenderTargetBitmap((int)Math.Round(width), (int)Math.Round(height), dpi, dpi, System.Windows.Media.PixelFormats.Default);
-            DrawingVisual dv = new DrawingVisual();
-            using (DrawingContext dc = dv.RenderOpen())
-            {
-                VisualBrush vb = new VisualBrush(inkCanvas1);
-                dc.DrawRectangle(vb, null, new Rect(new Point(), new System.Windows.Size(width, height)));
-            }
-            rtb.Render(dv);
-
-            BitmapEncoder pngEncoder = new PngBitmapEncoder();
-            pngEncoder.Frames.Add(BitmapFrame.Create(rtb));
-            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
-            {
-                pngEncoder.Save(ms);
-                System.IO.File.WriteAllBytes(filename, ms.ToArray());
-            }
+            string signatureFile = SaveTempSignature();
 
             //合并生成PDF
-            GeneratePDF(null, filename);
+            string pdfFile = GeneratePDF(null, signatureFile);
 
-            //上传FTP TODO
+            //上传FTP
+            var uploaded = UploadToFtp(pdfFile);
+
+            //清除文件
+            if (!Constants.DEBUG)
+            {
+                CleanTempFile(signatureFile);
+                CleanTempFile(pdfFile);
+            }
+
+            if (!uploaded)
+            {
+                MessageBox.Show("账单文件上传失败！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
 
             SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
 
-            //清除文件
-            //CleanTempFile(filename);
-        }
+            MessageBoxResult dr = MessageBox.Show("电子账单保存完毕！","成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (dr == MessageBoxResult.OK && !Constants.DEBUG)
+            {
+                this.Close();
+            }
+        }   
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //cWidth = inkCanvas1.ActualWidth;
-            //cHeight = inkCanvas1.ActualHeight;
-
             double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
             double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
             ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
@@ -151,8 +153,10 @@ namespace Reception
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             CloseNetWork();
-            //清除文件
-            //CleanTempFile(currentFileName);
+            if (!Constants.DEBUG)
+            {
+                CleanTempFile(currentFileName);
+            }
         }
 
         #endregion
@@ -166,7 +170,7 @@ namespace Reception
         /// </summary>
         private void InitNetWork()
         {
-            client = new AsyncTcpClient(IPAddress.Parse(Constants.TabletIP), Constants.TabletPort);
+            client = new AsyncTcpClient(IPAddress.Parse(ConfigurationManager.AppSettings["SignatureDeviceIP"]), Constants.SignatureDeviceIPPort);
             client.Connect();
             client.ServerConnected += new EventHandler<TcpServerConnectedEventArgs>(Connected);
             client.ServerDisconnected += new EventHandler<TcpServerDisconnectedEventArgs>(Disconnected);
@@ -309,8 +313,8 @@ namespace Reception
         {
             //Signature preview area
             //inkCanvas BG
-            BitmapImage bg = loadImage(currentFileName);
-            Size imageSize = getImageSize(currentFileName);
+            BitmapImage bg = LoadImage(currentFileName);
+            Size imageSize = GetImageSize(currentFileName);
             billImageW = imageSize.Width;
             billImageH = imageSize.Height;
 
@@ -338,9 +342,6 @@ namespace Reception
             double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
             ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
             inkCanvas1.LayoutTransform = sf;
-
-            //cWidth = inkCanvas1.ActualWidth;
-            //cHeight = inkCanvas1.ActualHeight; 
         }
 
         private void Log(String s)
@@ -349,7 +350,7 @@ namespace Reception
         }
 
 
-        private BitmapImage loadImage(String filepath)
+        private BitmapImage LoadImage(String filepath)
         {
             //Open in local
             BitmapImage bg = new BitmapImage();
@@ -360,7 +361,7 @@ namespace Reception
             return bg;
         }
 
-        private Size getImageSize(string path)
+        private Size GetImageSize(string path)
         {
             using (FileStream fileStream = new FileStream(path, FileMode.Open, FileAccess.Read))
             {
@@ -370,9 +371,49 @@ namespace Reception
             }
         }
 
+        private string SaveTempSignature()
+        {
+            if (!Directory.Exists(Constants.TempFileFolder))
+            {
+                Directory.CreateDirectory(Constants.TempFileFolder);
+            }
+            string filename = Constants.TempFileFolder + "/" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".png";
+
+            double width = inkCanvas1.ActualWidth;
+            double height = inkCanvas1.ActualHeight;
+            double dpi = 96d;
+
+            RenderTargetBitmap rtb = new RenderTargetBitmap((int)Math.Round(width), (int)Math.Round(height), dpi, dpi, System.Windows.Media.PixelFormats.Default);
+            DrawingVisual dv = new DrawingVisual();
+            using (DrawingContext dc = dv.RenderOpen())
+            {
+                VisualBrush vb = new VisualBrush(inkCanvas1);
+                dc.DrawRectangle(vb, null, new Rect(new Point(), new System.Windows.Size(width, height)));
+            }
+            rtb.Render(dv);
+
+            BitmapEncoder pngEncoder = new PngBitmapEncoder();
+            pngEncoder.Frames.Add(BitmapFrame.Create(rtb));
+            using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
+            {
+                pngEncoder.Save(ms);
+                System.IO.File.WriteAllBytes(filename, ms.ToArray());
+            }
+            return filename;
+        }
+
         private void ReviewBill(String filepath)
         {
             currentFileName = filepath;
+
+            FileInfo f = new FileInfo(filepath);
+            if(!f.Exists)
+            {
+                MessageBox.Show("账单文件不存在，请重试！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                this.Close();
+                return;
+            }
+
             //Resize Window
             InitUI();
 
@@ -383,7 +424,7 @@ namespace Reception
                 retry++;
                 if (retry >= Constants.MaxTryConnect)
                 {
-                    MessageBox.Show("签字板连接错误");
+                    MessageBox.Show("签字板连接错误！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     this.Close();
                     return;
                 }
@@ -407,17 +448,35 @@ namespace Reception
         /// <param name="nY"></param>
         private void DrawLine(StylusPointCollection pts, bool add)
         {
-            Stroke s = new Stroke(pts);
-            s.DrawingAttributes.Color = Colors.Red;
             if (add)
             {
+                Stroke s = new Stroke(pts);
+                s.DrawingAttributes.Color = Colors.Black;
                 inkCanvas1.Strokes.Add(s);
             }
             else
             {
-                //TODO;
-                //inkCanvas1.Strokes.Remove(s);
+                var t = FlattenStylusPoints(pts);
+                foreach(var c in inkCanvas1.Strokes)
+                {
+                    var k = FlattenStylusPoints(c.StylusPoints);
+                    if(t.Equals(k))
+                    {
+                        inkCanvas1.Strokes.Remove(c);
+                        break;
+                    }
+                }
             }
+        }
+
+        private string FlattenStylusPoints(StylusPointCollection pts)
+        {
+            string result = "";
+            foreach(var p in pts)
+            {
+                result += string.Format("{0},{1}", p.X, p.Y);
+            }
+            return result;
         }
 
         private void CleanSignature()
@@ -433,10 +492,11 @@ namespace Reception
             }
         }
 
-        private void GeneratePDF(string f1, string f2)
+        private string GeneratePDF(string f1, string f2)
         {
+            string filename = f2.Replace(".png", ".pdf");
             Document doc = new Document(PageSize.A4, 0, 0, 0, 0);
-            PdfWriter.GetInstance(doc, new FileStream(f2.Replace(".png", ".pdf"), FileMode.Create));
+            PdfWriter.GetInstance(doc, new FileStream(filename, FileMode.Create));
             doc.Open();
 
             if (f1 != null)
@@ -457,6 +517,43 @@ namespace Reception
             }
 
             doc.Close();
+            return filename;
+        }
+
+        private bool UploadToFtp(string filename)
+        {
+            try
+            {
+                var sessionOptions = new WinSCP.SessionOptions
+                {
+                    FtpSecure = WinSCP.FtpSecure.None,
+                    Protocol = WinSCP.Protocol.Ftp,
+                    HostName = ConfigurationManager.AppSettings["FTPHost"],
+                    PortNumber = int.Parse(ConfigurationManager.AppSettings["FTPPort"]),
+                    UserName = ConfigurationManager.AppSettings["FTPUsername"],
+                    Password = ConfigurationManager.AppSettings["FTPPassword"],
+                };
+                string ftpRoot = ConfigurationManager.AppSettings["FTPRoot"];
+                using (var session = new WinSCP.Session())
+                {
+                    session.Open(sessionOptions);
+                    Log("Connected successfully to FTP server");
+                    var transferOptions = new WinSCP.TransferOptions() { TransferMode = WinSCP.TransferMode.Binary };
+
+                    //Ceheck and create folder
+                    String mftpFilePath = string.Format("/{0}/{1}年/{2}月/{3}/{4}.pdf", ftpRoot, DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.ToString("yyyyMMddhhmmss"));
+                    //session.CreateDirectory(Constants.FTPRoot);
+
+                    FileInfo fi = new FileInfo(filename);
+                    var hResult = session.PutFiles(fi.FullName, mftpFilePath, false, transferOptions);
+                    hResult.Check();
+                }
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         private void CleanTempFileFolder()
@@ -488,10 +585,6 @@ namespace Reception
         }
 
         #endregion
-
-        
-
-        
 
 
     }

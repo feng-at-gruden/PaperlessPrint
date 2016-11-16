@@ -23,7 +23,7 @@ namespace Reception
 
             if (!ret)
             {
-                MessageBox.Show("程序已经在运行中,请关闭重试！");
+                MessageBox.Show("程序已经在运行中,请关闭重试！","错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 Environment.Exit(0);
             }
 
@@ -33,7 +33,7 @@ namespace Reception
             }
             else
             {
-                MessageBox.Show("启动参数错误");
+                MessageBox.Show("启动参数错误！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }
         }

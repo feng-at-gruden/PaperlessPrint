@@ -61,24 +61,22 @@ namespace SignBoard
 
         #region UI Events
 
-        private void btnClean_Click(object sender, RoutedEventArgs e)
+        private void Image_TouchDown(object sender, TouchEventArgs e)
+        {
+            CleanSignature();
+        }
+
+        private void Image_MouseDown(object sender, MouseButtonEventArgs e)
         {
             CleanSignature();
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            //e.Cancel = true;
             CleanTempFiles();
         }
 
-        private void Window_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Escape)
-            {
-                //TODO, 显示退出确认密码框
-                this.Close();
-            }
-        }
 
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
         {
@@ -163,6 +161,8 @@ namespace SignBoard
             formBG.ImageSource = bg;
             inkCanvas1.Background = formBG;
             UpdateReceiveProgress(0);
+
+            CleanTempFile(path);
         }
 
         private void CleanSignature()
@@ -198,6 +198,18 @@ namespace SignBoard
             }
         }
 
+        private void CleanTempFile(string filename)
+        {
+            if (File.Exists(filename))
+            {
+                try
+                {
+                    File.Delete(filename);
+                }
+                catch { }
+            }
+        }
+
         private void UpdateReceiveProgress(int p)
         {
             progressBar1.SetValue(ProgressBar.ValueProperty, p + 0d);
@@ -226,14 +238,14 @@ namespace SignBoard
 
         private void InitServer()
         {
-            server = new AsyncTcpServer(Constants.TabletPort);
+            server = new AsyncTcpServer(Constants.SignatureDeviceIPPort);
             server.Encoding = Encoding.UTF8;
             server.ClientConnected += new EventHandler<TcpClientConnectedEventArgs>(ClientConnected);
             server.ClientDisconnected += new EventHandler<TcpClientDisconnectedEventArgs>(ClientDisconnected);
             //server.PlaintextReceived += new EventHandler<TcpDatagramReceivedEventArgs<string>>(PlainTextReceived);
             server.DatagramReceived += new EventHandler<TcpDatagramReceivedEventArgs<byte[]>>(DatagramReceived);
             server.Start();
-            Log("网络启动:" + NetworkHelper.GetLocalIP() + ":" + Constants.TabletPort);
+            Log("网络启动:" + NetworkHelper.GetLocalIP());
         }
 
         private void ClientConnected(object sender, TcpClientConnectedEventArgs e)
@@ -384,7 +396,6 @@ namespace SignBoard
         }
 
         #endregion
-
 
         
     }

@@ -351,7 +351,7 @@ namespace PaperlessPrint
         /// </summary>
         private void InitNetWork()
         {
-            client = new AsyncTcpClient(IPAddress.Parse(Constants.TabletIP), Constants.TabletPort);
+            client = new AsyncTcpClient(IPAddress.Parse("192.168.31.33"), Constants.SignatureDeviceIPPort);
             client.Connect();
             client.ServerConnected += new EventHandler<TcpServerConnectedEventArgs>(Connected);
             client.ServerDisconnected += new EventHandler<TcpServerDisconnectedEventArgs>(Disconnected);
