@@ -27,8 +27,7 @@ namespace SignBoard
             PDFViewer pdfViewer1 = new PDFViewer();
             WindowsFormsHost1.Child = pdfViewer1;
 
-            pdfViewer1.LoadPDF("D:\test.pdf");
-            
+            pdfViewer1.LoadPDF("D:\\test.pdf");
 
             //RotateTransform rt = new RotateTransform(-90, 0.5, 0.5);
             //WebBrowser1.LayoutTransform = rt;

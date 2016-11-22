@@ -15,16 +15,20 @@ namespace SignBoard
         public PDFViewer()
         {
             InitializeComponent();
-            //foxitReader1.ShowToolBar(false);
+            foxitReader1.ShowToolBar(false);
             foxitReader1.ShowStatusBar(false);
-            foxitReader1.UnLockActiveX("license_id","unlock_code");
-            LoadPDF("D:\test.pdf");
+            foxitReader1.ShowTitleBar(false);
+            foxitReader1.ShowNavigationPanels(false);
+            foxitReader1.ShowBookmark(false);
+            //foxitReader1.UnLockActiveX("license_id","unlock_code");
         }
 
 
         public void LoadPDF(string filename)
         {
             foxitReader1.OpenFile(filename, null);
+            foxitReader1.Rotate = 3;
+
         }
 
 
