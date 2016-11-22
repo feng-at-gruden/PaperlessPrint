@@ -4,5 +4,6 @@
         Title="签名设备" Height="300" Width="300" WindowState="Maximized" WindowStyle="None" ResizeMode="NoResize" Closed="Window_Closed" Icon="images/clean.png" Deactivated="Window_Deactivated" Activated="Window_Activated" Topmost="False" >
     <Grid>
         <WindowsFormsHost Name="WindowsFormsHost1" />
+        <!--<WebBrowser Name="WebBrowser1" Source="D:\test.pdf" />-->
     </Grid>
 </Window>
