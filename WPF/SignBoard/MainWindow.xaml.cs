@@ -41,10 +41,7 @@ namespace SignBoard
 
         ImageBrush formBG;
 
-        private bool drawing;
-        private int pX = -1;
-        private int pY = -1;
-
+        private bool workingWithImg = true;
 
         #endregion
 
@@ -150,19 +147,26 @@ namespace SignBoard
 
         private void DisplayBill(string filename)
         {
-            string path = string.Format("{0}\\{1}\\{2}", Directory.GetCurrentDirectory(), Constants.TempFileFolder, filename);
+            if (workingWithImg)
+            {
+                string path = string.Format("{0}\\{1}\\{2}", Directory.GetCurrentDirectory(), Constants.TempFileFolder, filename);
 
-            //Open in local
-            BitmapImage bg = new BitmapImage();
-            bg.BeginInit();
-            bg.CacheOption = BitmapCacheOption.OnLoad;
-            bg.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
-            bg.EndInit();
-            formBG.ImageSource = bg;
-            inkCanvas1.Background = formBG;
-            UpdateReceiveProgress(0);
+                //Open in local
+                BitmapImage bg = new BitmapImage();
+                bg.BeginInit();
+                bg.CacheOption = BitmapCacheOption.OnLoad;
+                bg.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
+                bg.EndInit();
+                formBG.ImageSource = bg;
+                inkCanvas1.Background = formBG;
+                UpdateReceiveProgress(0);
 
-            CleanTempFile(path);
+                CleanTempFile(path);
+            }
+            else
+            {
+                //Working with PDF
+            }
         }
 
         private void CleanSignature()
