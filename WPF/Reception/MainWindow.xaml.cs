@@ -67,7 +67,7 @@ namespace Reception
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
-            this.Close();
+            Application.Current.Shutdown();
         }
 
         private void btnPrint_Click(object sender, RoutedEventArgs e)
@@ -144,10 +144,12 @@ namespace Reception
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            /*
             double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
             double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
             ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
             inkCanvas1.LayoutTransform = sf;
+             * */
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -312,16 +314,15 @@ namespace Reception
 
         private void InitUI()
         {
+            billImageW = Constants.A4Width;
+            billImageH = Constants.A4Height;
+
             //Signature preview area
-            if (WorkingWithPDF)
-            {
-                billImageW = Constants.A4Width;
-                billImageH = Constants.A4Height;
-            }
-            else
+            if (!WorkingWithPDF)
             {
                 //inkCanvas BG
                 BitmapImage bg = LoadImage(currentFileName);
+                /*
                 Size imageSize = GetImageSize(currentFileName);
                 billImageW = imageSize.Width;
                 billImageH = imageSize.Height;
@@ -329,12 +330,13 @@ namespace Reception
                 //设置为inkCanvas为图片实际尺寸
                 inkCanvas1.SetValue(InkCanvas.WidthProperty, billImageW);
                 inkCanvas1.SetValue(InkCanvas.HeightProperty, billImageH);
+                */
 
                 formBG = new ImageBrush();
                 formBG.Stretch = Stretch.Fill;
                 //设置为背景
-                //formBG.ImageSource = bg;
-                //inkCanvas1.Background = formBG;
+                formBG.ImageSource = bg;
+                inkCanvas1.Background = formBG;
             }
             
             //设置窗体按比例尺寸
@@ -345,14 +347,29 @@ namespace Reception
 
             this.SetValue(Window.WidthProperty, w);
             this.SetValue(Window.HeightProperty, h);
-            //this.SetValue(Window.TopProperty, 0d);
-            this.SetValue(Window.LeftProperty, -50d);
+            this.SetValue(Window.TopProperty, 0d);
+            this.SetValue(Window.LeftProperty, 0d);
 
             //获取显示区域尺寸 并设置inkCanvas缩放比例
+            int A4Width = 2604;
+            int A4Height = 3507;
+            double w1 = w - 26;
+            double h1 = (w1 * A4Height / A4Width) - 4;
+            inkCanvas1.SetValue(InkCanvas.WidthProperty, w1);
+            inkCanvas1.SetValue(InkCanvas.HeightProperty, h1);
+
+            //if (WorkingWithPDF)
+            {
+                billImageW = w1;
+                billImageH = h1;
+            }
+
+            /*
             double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
             double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
             ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
-            inkCanvas1.LayoutTransform = sf;
+            inkCanvas1.LayoutTransform = sf;*/
+
         }
 
         private void Log(String s)

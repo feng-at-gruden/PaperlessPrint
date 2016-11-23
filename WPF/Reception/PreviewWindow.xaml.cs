@@ -41,6 +41,15 @@ namespace Reception
             {
                 currentFileName = this.args[0];
                 pdfReader.LoadPDF(currentFileName);
+                pdfReader.SetZoomLevel(1);
+                //long level = 
+            }
+
+            if (SignatureWindow == null)
+            {
+                SignatureWindow = new MainWindow();
+                //SignatureWindow.ContentWindow = this;
+                SignatureWindow.Show();
             }
         }
 
@@ -51,23 +60,24 @@ namespace Reception
 
         private void InitUI()
         {
-            Size contentSize = GetA4DisplayAreaSize();
-            WindowsFormsHost1.SetValue(Canvas.WidthProperty, contentSize.Width);
-            WindowsFormsHost1.SetValue(Canvas.HeightProperty, contentSize.Height);
-
-            pdfReader = new PDFReader();
-            WindowsFormsHost1.Child = pdfReader;
-
             //设置窗体按比例尺寸
             double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
             double h = screenHeight - SystemParameters.CaptionHeight - SystemParameters.MenuBarHeight;
-            double w = Math.Floor(Constants.A4Width * h/ Constants.A4Height);
+            double w = Math.Floor(Constants.A4Width * h / Constants.A4Height);
             //double w = Math.Floor(billImageW * h / billImageH);
 
             this.SetValue(Window.WidthProperty, w);
             this.SetValue(Window.HeightProperty, h);
-            //this.SetValue(Window.TopProperty, 0d);
-            this.SetValue(Window.LeftProperty, -50d);
+            this.SetValue(Window.TopProperty, 0d);
+            this.SetValue(Window.LeftProperty, 0d);
+
+            WindowsFormsHost1.SetValue(Canvas.WidthProperty, w);
+            WindowsFormsHost1.SetValue(Canvas.HeightProperty, h);
+
+            pdfReader = new PDFReader();
+            WindowsFormsHost1.Child = pdfReader;
+
+            
 
             //PDFReader pdfReader = new PDFReader();
             //WindowsFormsHost1.Child = pdfReader;
@@ -90,12 +100,7 @@ namespace Reception
 
         private void Window_Activated(object sender, EventArgs e)
         {
-            if (SignatureWindow == null)
-            {
-                SignatureWindow = new MainWindow();
-                //SignatureWindow.ContentWindow = this;
-                SignatureWindow.Show();
-            }
+            
         }
 
         private void Window_Closed(object sender, EventArgs e)

@@ -37,5 +37,11 @@ namespace Reception
             foxitReader1.GoToPage(p);
         }
 
+        public void SetZoomLevel(int level)
+        {
+            foxitReader1.ZoomLevel = level;
+        }
+
+
     }
 }

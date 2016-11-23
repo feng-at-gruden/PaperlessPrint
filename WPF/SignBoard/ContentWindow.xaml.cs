@@ -27,6 +27,8 @@ namespace SignBoard
         {
             InitializeComponent();
             InitUI();
+            ShowSignWindow();
+            LoadPDF("C:\\Tools\\1.pdf");
         }
 
         #region UI Events
@@ -43,7 +45,7 @@ namespace SignBoard
 
         private void Window_Activated(object sender, EventArgs e)
         {
-            ShowSignWindow();
+            
         }
 
         #endregion
@@ -59,7 +61,7 @@ namespace SignBoard
 
         private void InitUI()
         {
-            Size contentSize = UtilsHelper.GetA4DisplayAreaSize();
+            Size contentSize = UtilsHelper.GetPDFDisplayAreaSize();
             WindowsFormsHost1.SetValue(Canvas.WidthProperty, contentSize.Width);
             WindowsFormsHost1.SetValue(Canvas.HeightProperty, contentSize.Height);
 

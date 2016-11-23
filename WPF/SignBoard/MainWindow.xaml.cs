@@ -126,7 +126,7 @@ namespace SignBoard
             //Update inkCanvas size;
             Size contentSize = UtilsHelper.GetA4DisplayAreaSize();
             inkCanvas1.SetValue(InkCanvas.WidthProperty, contentSize.Height);
-            inkCanvas1.SetValue(InkCanvas.HeightProperty, contentSize.Width - 25);
+            inkCanvas1.SetValue(InkCanvas.HeightProperty, contentSize.Width - 100);
 
             inkCanvas1.Strokes.StrokesChanged += this.Strokes_StrokesChanged;
         }
