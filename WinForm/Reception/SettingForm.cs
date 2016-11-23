@@ -32,7 +32,6 @@ namespace PaperlessPrint
                 TabletAddress = this.txtTabletAddress.Text.Trim(),
             };
 
-            ConfigurationHelper.SaveSettings(config);
             this.Close();
         }
 

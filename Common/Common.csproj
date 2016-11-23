@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,7 +52,6 @@
     <Compile Include="TCPServer\TcpServerConnectedEventArgs.cs" />
     <Compile Include="TCPServer\TcpServerDisconnectedEventArgs.cs" />
     <Compile Include="TCPServer\TcpServerExceptionOccurredEventArgs.cs" />
-    <Compile Include="Utiles\ConfigurationHelper.cs" />
     <Compile Include="Utiles\NetworkHelper.cs" />
   </ItemGroup>
   <ItemGroup />

@@ -13,7 +13,6 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 using System.Windows.Ink;
-using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -32,18 +31,20 @@ namespace SignBoard
     {
 
         # region Fields
+        public ContentWindow ContentWindow;
 
         private AsyncTcpServer server;
         private byte[] TempBuffer = new byte[0];
         private long receiveFileSize = 0;
         private long currentFileSize = 0;
+        private string receiveFileName;
         private TcpClient currentClient;
 
         ImageBrush formBG;
 
-        private bool workingWithImg = true;
+        bool WorkingWithPDF;
 
-        #endregion
+        # endregion
 
 
 
@@ -118,15 +119,14 @@ namespace SignBoard
             RotateTransform rt = new RotateTransform(-90, 0.5, 0.5);
             grid1.LayoutTransform = rt;
 
-
             //inkCanvas BG
             formBG = new ImageBrush();
             formBG.Stretch = Stretch.Fill;
 
             //Update inkCanvas size;
-            int h = (int)Math.Ceiling(Constants.A4Height * screenHeight / Constants.A4Width);
-            inkCanvas1.SetValue(InkCanvas.WidthProperty, screenHeight);
-            inkCanvas1.SetValue(InkCanvas.HeightProperty, h + 0d);
+            Size contentSize = UtilsHelper.GetA4DisplayAreaSize();
+            inkCanvas1.SetValue(InkCanvas.WidthProperty, contentSize.Height);
+            inkCanvas1.SetValue(InkCanvas.HeightProperty, contentSize.Width - 25);
 
             inkCanvas1.Strokes.StrokesChanged += this.Strokes_StrokesChanged;
         }
@@ -147,11 +147,16 @@ namespace SignBoard
 
         private void DisplayBill(string filename)
         {
-            if (workingWithImg)
+            WorkingWithPDF = filename.IndexOf(".pdf", StringComparison.InvariantCultureIgnoreCase) >= 0;
+            string path = string.Format("{0}\\{1}\\{2}", Directory.GetCurrentDirectory(), Constants.TempFileFolder, filename);
+            if (WorkingWithPDF)
             {
-                string path = string.Format("{0}\\{1}\\{2}", Directory.GetCurrentDirectory(), Constants.TempFileFolder, filename);
-
-                //Open in local
+                ContentWindow.LoadPDF(path);
+            }
+            else
+            {
+                //Working with IMAGE
+                
                 BitmapImage bg = new BitmapImage();
                 bg.BeginInit();
                 bg.CacheOption = BitmapCacheOption.OnLoad;
@@ -162,10 +167,6 @@ namespace SignBoard
                 UpdateReceiveProgress(0);
 
                 CleanTempFile(path);
-            }
-            else
-            {
-                //Working with PDF
             }
         }
 
@@ -293,6 +294,7 @@ namespace SignBoard
                 {
                     long size = long.Parse(cmd.Split(':')[1]);
                     receiveFileSize = size;
+                    receiveFileName = cmd.Split(':')[2];
                     if (!Dispatcher.CheckAccess())
                     {
                         Dispatcher.Invoke(
@@ -346,7 +348,7 @@ namespace SignBoard
                 {
                     Directory.CreateDirectory(Constants.TempFileFolder);
                 }
-                string filename = DateTime.Now.ToString("yyyyMMddHHmmss") + ".jpg";
+                string filename = DateTime.Now.ToString("yyyyMMddHHmmss") + receiveFileName.Substring(receiveFileName.LastIndexOf("."), 4);
                 FileStream fs = new FileStream(Constants.TempFileFolder + "\\" + filename, FileMode.Create);
                 fs.Write(TempBuffer, 0, TempBuffer.Length);
                 fs.Close();

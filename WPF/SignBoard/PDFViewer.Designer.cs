@@ -35,6 +35,7 @@
             // 
             // foxitReader1
             // 
+            this.foxitReader1.AccessibleRole = System.Windows.Forms.AccessibleRole.None;
             this.foxitReader1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.foxitReader1.Enabled = true;
             this.foxitReader1.Location = new System.Drawing.Point(0, 0);
@@ -48,7 +49,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Transparent;
             this.Controls.Add(this.foxitReader1);
+            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "PDFViewer";
             ((System.ComponentModel.ISupportInitialize)(this.foxitReader1)).EndInit();
             this.ResumeLayout(false);

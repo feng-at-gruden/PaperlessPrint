@@ -42,10 +42,9 @@ namespace Reception
         ImageBrush formBG;
 
         int tempIndex = -1;
-        bool WorkWithImage = true;
+        bool WorkingWithPDF;
 
         #endregion
-
 
 
         public MainWindow()
@@ -201,6 +200,7 @@ namespace Reception
         {
             if (client.Connected)
             {
+                string filename = path.Substring(path.LastIndexOf("\\") + 1);
                 FileStream fs = new FileStream(path, FileMode.Open);
                 //获取文件大小
                 long size = fs.Length;
@@ -208,7 +208,7 @@ namespace Reception
                 //将文件读到byte数组中
                 fs.Read(data, 0, data.Length);
                 fs.Close();
-                client.Send(NetWorkCommand.SEND_FILE + ":" + size);
+                client.Send(NetWorkCommand.SEND_FILE + ":" + size + ":" + filename);
                 Thread.Sleep(500);
                 client.Send(data);
             }
@@ -313,7 +313,12 @@ namespace Reception
         private void InitUI()
         {
             //Signature preview area
-            if (WorkWithImage)
+            if (WorkingWithPDF)
+            {
+                billImageW = Constants.A4Width;
+                billImageH = Constants.A4Height;
+            }
+            else
             {
                 //inkCanvas BG
                 BitmapImage bg = LoadImage(currentFileName);
@@ -331,12 +336,6 @@ namespace Reception
                 //formBG.ImageSource = bg;
                 //inkCanvas1.Background = formBG;
             }
-            else
-            {
-                //TODO
-                billImageW = Constants.A4Width;
-                billImageH = Constants.A4Height;
-            }
             
             //设置窗体按比例尺寸
             double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
@@ -346,15 +345,14 @@ namespace Reception
 
             this.SetValue(Window.WidthProperty, w);
             this.SetValue(Window.HeightProperty, h);
-            this.SetValue(Window.TopProperty, 0d);
-            this.SetValue(Window.LeftProperty, 0d);
+            //this.SetValue(Window.TopProperty, 0d);
+            this.SetValue(Window.LeftProperty, -50d);
 
             //获取显示区域尺寸 并设置inkCanvas缩放比例
             double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
             double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
             ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
             inkCanvas1.LayoutTransform = sf;
-
         }
 
         private void Log(String s)
@@ -418,6 +416,7 @@ namespace Reception
         private void ReviewBill(String filepath)
         {
             currentFileName = filepath;
+            WorkingWithPDF = filepath.IndexOf(".pdf", StringComparison.InvariantCultureIgnoreCase) >= 0;
 
             FileInfo f = new FileInfo(filepath);
             if(!f.Exists)
@@ -444,7 +443,7 @@ namespace Reception
             }
             
             //Send to Tablet            
-            //SendFile(currentFileName);
+            SendFile(currentFileName);
         }
 
 

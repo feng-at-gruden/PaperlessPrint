@@ -38,6 +38,7 @@
             this.foxitReader1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.foxitReader1.Enabled = true;
             this.foxitReader1.Location = new System.Drawing.Point(0, 0);
+            this.foxitReader1.Margin = new System.Windows.Forms.Padding(0);
             this.foxitReader1.Name = "foxitReader1";
             this.foxitReader1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("foxitReader1.OcxState")));
             this.foxitReader1.Size = new System.Drawing.Size(150, 150);
@@ -47,7 +48,9 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackColor = System.Drawing.Color.Transparent;
             this.Controls.Add(this.foxitReader1);
+            this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "PDFReader";
             ((System.ComponentModel.ISupportInitialize)(this.foxitReader1)).EndInit();
             this.ResumeLayout(false);

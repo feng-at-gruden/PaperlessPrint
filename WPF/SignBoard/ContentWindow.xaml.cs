@@ -20,18 +20,16 @@ namespace SignBoard
     public partial class ContentWindow : Window
     {
         MainWindow SignatureWindow;
+        PDFViewer pdfViewer;
+
+
         public ContentWindow()
         {
             InitializeComponent();
-
-            PDFViewer pdfViewer1 = new PDFViewer();
-            WindowsFormsHost1.Child = pdfViewer1;
-
-            pdfViewer1.LoadPDF("D:\\test.pdf");
-
-            //RotateTransform rt = new RotateTransform(-90, 0.5, 0.5);
-            //WebBrowser1.LayoutTransform = rt;
+            InitUI();
         }
+
+        #region UI Events
 
         private void Window_Closed(object sender, EventArgs e)
         {
@@ -48,14 +46,34 @@ namespace SignBoard
             ShowSignWindow();
         }
 
+        #endregion
 
 
         #region Private Functions
 
+        public void LoadPDF(string filename)
+        {
+            if (pdfViewer != null)
+                pdfViewer.LoadPDF(filename);
+        }
+
+        private void InitUI()
+        {
+            Size contentSize = UtilsHelper.GetA4DisplayAreaSize();
+            WindowsFormsHost1.SetValue(Canvas.WidthProperty, contentSize.Width);
+            WindowsFormsHost1.SetValue(Canvas.HeightProperty, contentSize.Height);
+
+            pdfViewer = new PDFViewer();
+            WindowsFormsHost1.Child = pdfViewer;
+
+            //PDFReader pdfReader = new PDFReader();
+            //WindowsFormsHost1.Child = pdfReader;
+        }
 
         private void ShowSignWindow()
         {
             SignatureWindow = new MainWindow();
+            SignatureWindow.ContentWindow = this;
             SignatureWindow.Show();
         }
 

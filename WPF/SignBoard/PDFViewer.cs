@@ -15,6 +15,7 @@ namespace SignBoard
         public PDFViewer()
         {
             InitializeComponent();
+
             foxitReader1.ShowToolBar(false);
             foxitReader1.ShowStatusBar(false);
             foxitReader1.ShowTitleBar(false);
@@ -28,9 +29,14 @@ namespace SignBoard
         {
             foxitReader1.OpenFile(filename, null);
             foxitReader1.Rotate = 3;
-
+            foxitReader1.ShowNavigationPanels(false);
+            foxitReader1.SetLayoutShowMode(FoxitReaderSDKProLib.BrowseMode.MODE_SINGLE, 1);
         }
 
+        public void GotoPage(int p)
+        {
+            foxitReader1.GoToPage(p);
+        }
 
     }
 }

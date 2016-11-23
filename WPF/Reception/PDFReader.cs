@@ -15,12 +15,26 @@ namespace Reception
         public PDFReader()
         {
             InitializeComponent();
+
+            foxitReader1.ShowToolBar(false);
+            foxitReader1.ShowStatusBar(false);
+            foxitReader1.ShowTitleBar(false);
+            foxitReader1.ShowNavigationPanels(false);
+            foxitReader1.ShowBookmark(false);
+            //foxitReader1.UnLockActiveX("license_id","unlock_code");
         }
 
 
-        public void LoadPDF(String filename)
+        public void LoadPDF(string filename)
         {
             foxitReader1.OpenFile(filename, null);
+            foxitReader1.ShowNavigationPanels(false);
+            foxitReader1.SetLayoutShowMode(FoxitReaderSDKProLib.BrowseMode.MODE_SINGLE, 1);
+        }
+
+        public void GotoPage(int p)
+        {
+            foxitReader1.GoToPage(p);
         }
 
     }
