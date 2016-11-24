@@ -64,7 +64,6 @@ namespace Reception
             double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
             double h = screenHeight - SystemParameters.CaptionHeight - SystemParameters.MenuBarHeight;
             double w = Math.Floor(Constants.A4Width * h / Constants.A4Height);
-            //double w = Math.Floor(billImageW * h / billImageH);
 
             this.SetValue(Window.WidthProperty, w);
             this.SetValue(Window.HeightProperty, h);
@@ -76,23 +75,16 @@ namespace Reception
 
             pdfReader = new PDFReader();
             WindowsFormsHost1.Child = pdfReader;
-
-            
-
-            //PDFReader pdfReader = new PDFReader();
-            //WindowsFormsHost1.Child = pdfReader;
         }
 
 
 
         private Size GetA4DisplayAreaSize()
         {
-
             double screenWidth = System.Windows.SystemParameters.PrimaryScreenWidth;
             double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
 
             double w = Constants.A4Height * screenHeight / Constants.A4Width;
-
             return new Size(w, screenHeight);
 
         }

@@ -28,7 +28,7 @@ namespace SignBoard
             InitializeComponent();
             InitUI();
             ShowSignWindow();
-            LoadPDF("C:\\Tools\\1.pdf");
+            //LoadPDF("C:\\Tools\\1.pdf");
         }
 
         #region UI Events
@@ -57,6 +57,12 @@ namespace SignBoard
         {
             if (pdfViewer != null)
                 pdfViewer.LoadPDF(filename);
+        }
+
+        public void ClosePDF()
+        {
+            if (pdfViewer != null)
+                pdfViewer.ClosePDF();
         }
 
         private void InitUI()

@@ -43,6 +43,7 @@ namespace SignBoard
         ImageBrush formBG;
 
         bool WorkingWithPDF;
+        string currentBillFile;
 
         # endregion
 
@@ -148,26 +149,24 @@ namespace SignBoard
         private void DisplayBill(string filename)
         {
             WorkingWithPDF = filename.IndexOf(".pdf", StringComparison.InvariantCultureIgnoreCase) >= 0;
-            string path = string.Format("{0}\\{1}\\{2}", Directory.GetCurrentDirectory(), Constants.TempFileFolder, filename);
+            currentBillFile = string.Format("{0}\\{1}\\{2}", Directory.GetCurrentDirectory(), Constants.TempFileFolder, filename);
             if (WorkingWithPDF)
             {
-                ContentWindow.LoadPDF(path);
+                ContentWindow.LoadPDF(currentBillFile);
             }
             else
             {
                 //Working with IMAGE
-                
                 BitmapImage bg = new BitmapImage();
                 bg.BeginInit();
                 bg.CacheOption = BitmapCacheOption.OnLoad;
-                bg.UriSource = new Uri(path, UriKind.RelativeOrAbsolute);
+                bg.UriSource = new Uri(currentBillFile, UriKind.RelativeOrAbsolute);
                 bg.EndInit();
                 formBG.ImageSource = bg;
                 inkCanvas1.Background = formBG;
-                UpdateReceiveProgress(0);
-
-                CleanTempFile(path);
             }
+            UpdateReceiveProgress(0);
+            CleanTempFile(currentBillFile);
         }
 
         private void CleanSignature()
@@ -178,6 +177,54 @@ namespace SignBoard
 
             if (currentClient != null)
                 server.Send(currentClient, NetWorkCommand.CLEAN);
+        }
+
+        private void StartNewSignature()
+        {
+            CleanSignature();
+            //Clean opened content
+            if(WorkingWithPDF)
+            {
+                ContentWindow.ClosePDF();
+            }
+            else
+            {
+                inkCanvas1.Background = (Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#11FFFFFF");
+            }
+            EnableInkCanvas(true);
+        }
+
+        private void SignatureFinished(bool showThanks = true)
+        {
+            StartNewSignature();
+
+            //TODO, display a thank message
+            if (showThanks)
+            {
+                MessageBox.Show("谢谢,欢迎下次光临！");
+            }
+
+            EnableInkCanvas(false);
+
+            //Display WebView etc
+
+            //currentClient.Close();
+            //currentClient = null;
+        }
+
+        private void EnableInkCanvas(bool enable)
+        {
+            //TODO, hide buttons
+            inkCanvas1.SetValue(InkCanvas.IsEnabledProperty, enable);
+            btnClean.SetValue(Button.VisibilityProperty, enable ? Visibility.Visible : Visibility.Hidden);
+            if(enable)
+            {
+
+            }
+            else
+            {
+
+            }
         }
 
         /// <summary>
@@ -298,11 +345,11 @@ namespace SignBoard
                     if (!Dispatcher.CheckAccess())
                     {
                         Dispatcher.Invoke(
-                                () => CleanSignature(), System.Windows.Threading.DispatcherPriority.Normal);
+                                () => StartNewSignature(), System.Windows.Threading.DispatcherPriority.Normal);
                     }
                     else
                     {
-                        CleanSignature();
+                        StartNewSignature();
                     }
                     
                 }
@@ -311,11 +358,23 @@ namespace SignBoard
                     if (!Dispatcher.CheckAccess())
                     {
                         Dispatcher.Invoke(
-                                () => CleanSignature(), System.Windows.Threading.DispatcherPriority.Normal);
+                                () => SignatureFinished(), System.Windows.Threading.DispatcherPriority.Normal);
                     }
                     else
                     {
-                        CleanSignature();
+                        SignatureFinished();
+                    }
+                }
+                else if (cmd.IndexOf(NetWorkCommand.RECEPTION_EXIT) >= 0)
+                {
+                    if (!Dispatcher.CheckAccess())
+                    {
+                        Dispatcher.Invoke(
+                            () => SignatureFinished(showThanks:false), System.Windows.Threading.DispatcherPriority.Normal);
+                    }
+                    else
+                    {
+                        SignatureFinished(showThanks: false);
                     }
                 }
                 else

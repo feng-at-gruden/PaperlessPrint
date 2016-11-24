@@ -19,7 +19,7 @@ namespace Common
 
         public const int SignatureDeviceIPPort = 12345;
         public const int BufferSize = 65536;
-        public const int MaxTryConnect = 5;                 //前台连接平板尝试次数 5*0.5秒
+        public const int MaxTryConnect = 10;                 //前台连接平板尝试次数 5*0.5秒
         public const int MaxClients = 5;
 
         public const int A4Width = 595;
@@ -43,6 +43,7 @@ namespace Common
         public const String CLEAN = CMD + "CLEAN";
         public const String SIGNATURE_DONE = CMD + "SIGNATURE_DONE";
         public const String SEND_FILE = CMD + "SEND_FILE";
+        public const String RECEPTION_EXIT = CMD + "RECEPTION_EXIT";
 
         //public const String SHOW_BILL = CMD + "SHOW_BILL";
         //public const String SIGN_DONE = CMD + "SIGN_DONE";

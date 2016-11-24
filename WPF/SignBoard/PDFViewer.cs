@@ -33,6 +33,11 @@ namespace SignBoard
             foxitReader1.SetLayoutShowMode(FoxitReaderSDKProLib.BrowseMode.MODE_SINGLE, 1);
         }
 
+        public void ClosePDF()
+        {
+            foxitReader1.CloseFile();
+        }
+
         public void GotoPage(int p)
         {
             foxitReader1.GoToPage(p);

@@ -164,14 +164,17 @@ namespace Common.TCPServer
                     RaiseClientConnected(tcpClient);
                 }
 
-                NetworkStream networkStream = internalClient.NetworkStream;
-                networkStream.BeginRead(
-                  internalClient.Buffer,
-                  0,
-                  internalClient.Buffer.Length,
-                  HandleDatagramReceived,
-                  internalClient);
-
+                try
+                {
+                    NetworkStream networkStream = internalClient.NetworkStream;
+                    networkStream.BeginRead(
+                      internalClient.Buffer,
+                      0,
+                      internalClient.Buffer.Length,
+                      HandleDatagramReceived,
+                      internalClient);
+                }
+                catch { }
                 tcpListener.BeginAcceptTcpClient(
                   new AsyncCallback(HandleTcpClientAccepted), ar.AsyncState);
             }
@@ -214,12 +217,19 @@ namespace Common.TCPServer
                 //RaisePlaintextReceived(internalClient.TcpClient, receivedBytes);
 
                 // continue listening for tcp datagram packets
-                networkStream.BeginRead(
-                  internalClient.Buffer,
-                  0,
-                  internalClient.Buffer.Length,
-                  HandleDatagramReceived,
-                  internalClient);
+                try
+                {
+                    networkStream.BeginRead(
+                      internalClient.Buffer,
+                      0,
+                      internalClient.Buffer.Length,
+                      HandleDatagramReceived,
+                      internalClient);
+                }
+                catch{
+                    
+                }
+                
             }
         }
 
@@ -299,8 +309,13 @@ namespace Common.TCPServer
             if (datagram == null)
                 throw new ArgumentNullException("datagram");
 
-            tcpClient.GetStream().BeginWrite(
-              datagram, 0, datagram.Length, HandleDatagramWritten, tcpClient);
+            try
+            {
+                tcpClient.GetStream().BeginWrite(
+                    datagram, 0, datagram.Length, HandleDatagramWritten, tcpClient);
+            }
+            catch { }
+            
         }
 
         private void HandleDatagramWritten(IAsyncResult ar)

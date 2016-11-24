@@ -37,7 +37,7 @@ namespace Reception
         private string[] args = null;
         private AsyncTcpClient client;
         private String currentFileName;
-        private double billImageW, billImageH;          //账单图像文件尺寸
+        private double billImageW = Constants.A4Width, billImageH = Constants.A4Height;          //账单图像文件尺寸
 
         ImageBrush formBG;
 
@@ -67,6 +67,7 @@ namespace Reception
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
+            SendPlaintText(NetWorkCommand.RECEPTION_EXIT);
             Application.Current.Shutdown();
         }
 
@@ -115,7 +116,7 @@ namespace Reception
             string signatureFile = SaveTempSignature();
 
             //合并生成PDF
-            string pdfFile = GeneratePDF(null, signatureFile);
+            string pdfFile = GeneratePDF(signatureFile);
 
             //上传FTP
             var uploaded = UploadToFtp(pdfFile);
@@ -125,6 +126,7 @@ namespace Reception
             {
                 CleanTempFile(signatureFile);
                 CleanTempFile(pdfFile);
+                CleanTempFile(currentFileName);
             }
 
             if (!uploaded)
@@ -144,12 +146,10 @@ namespace Reception
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            /*
             double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
             double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
             ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
             inkCanvas1.LayoutTransform = sf;
-             * */
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -157,7 +157,7 @@ namespace Reception
             CloseNetWork();
             if (!Constants.DEBUG)
             {
-                CleanTempFile(currentFileName);
+                CleanTempFileFolder();
             }
         }
 
@@ -314,15 +314,11 @@ namespace Reception
 
         private void InitUI()
         {
-            billImageW = Constants.A4Width;
-            billImageH = Constants.A4Height;
-
             //Signature preview area
-            if (!WorkingWithPDF)
+            if (!WorkingWithPDF)    //IMAGE MODE
             {
                 //inkCanvas BG
                 BitmapImage bg = LoadImage(currentFileName);
-                /*
                 Size imageSize = GetImageSize(currentFileName);
                 billImageW = imageSize.Width;
                 billImageH = imageSize.Height;
@@ -330,7 +326,6 @@ namespace Reception
                 //设置为inkCanvas为图片实际尺寸
                 inkCanvas1.SetValue(InkCanvas.WidthProperty, billImageW);
                 inkCanvas1.SetValue(InkCanvas.HeightProperty, billImageH);
-                */
 
                 formBG = new ImageBrush();
                 formBG.Stretch = Stretch.Fill;
@@ -343,7 +338,7 @@ namespace Reception
             double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
             double h = screenHeight - SystemParameters.CaptionHeight - SystemParameters.MenuBarHeight;
             //double w = Math.Floor(Constants.A4Width * h/ Constants.A4Height);
-            double w = Math.Floor(billImageW * h / billImageH);
+            double w = Math.Floor(Constants.A4Width * h / Constants.A4Height);
 
             this.SetValue(Window.WidthProperty, w);
             this.SetValue(Window.HeightProperty, h);
@@ -351,25 +346,25 @@ namespace Reception
             this.SetValue(Window.LeftProperty, 0d);
 
             //获取显示区域尺寸 并设置inkCanvas缩放比例
-            int A4Width = 2604;
-            int A4Height = 3507;
-            double w1 = w - 26;
-            double h1 = (w1 * A4Height / A4Width) - 4;
-            inkCanvas1.SetValue(InkCanvas.WidthProperty, w1);
-            inkCanvas1.SetValue(InkCanvas.HeightProperty, h1);
+            if (WorkingWithPDF) 
+            { 
+                //int A4Width = 2604;
+                //int A4Height = 3507;
 
-            //if (WorkingWithPDF)
-            {
-                billImageW = w1;
-                billImageH = h1;
+                double SignBoardWidth = 1080 - 26;
+                double SignBoardHeigh = 1528 - 200 - 10;
+
+                inkCanvas1.SetValue(InkCanvas.WidthProperty, SignBoardWidth);
+                inkCanvas1.SetValue(InkCanvas.HeightProperty, SignBoardHeigh);
+
+                billImageW = SignBoardWidth;
+                billImageH = SignBoardHeigh;
             }
 
-            /*
             double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
             double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
             ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
-            inkCanvas1.LayoutTransform = sf;*/
-
+            inkCanvas1.LayoutTransform = sf;
         }
 
         private void Log(String s)
@@ -454,7 +449,7 @@ namespace Reception
                 if (retry >= Constants.MaxTryConnect)
                 {
                     MessageBox.Show("签字板连接错误！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    this.Close();
+                    Application.Current.Shutdown();
                     return;
                 }
             }
@@ -521,31 +516,45 @@ namespace Reception
             }
         }
 
-        private string GeneratePDF(string f1, string f2)
+        private string GeneratePDF(string f2)
         {
             string filename = f2.Replace(".png", ".pdf");
-            Document doc = new Document(PageSize.A4, 0, 0, 0, 0);
-            PdfWriter.GetInstance(doc, new FileStream(filename, FileMode.Create));
-            doc.Open();
-
-            if (f1 != null)
+           
+            if(WorkingWithPDF)
             {
-                iTextSharp.text.Image img1 = iTextSharp.text.Image.GetInstance(f1);
-                //img1.ScalePercent(1f);
-                img1.ScaleToFit(doc.PageSize);
-                img1.SetAbsolutePosition(0, 0);
-                doc.Add(img1);
-            }
+                PdfReader pdfReader = new PdfReader(currentFileName);
+                iTextSharp.text.Rectangle mediabox = pdfReader.GetPageSize(1);
 
-            if (f2 != null)
+                using (Stream inputPdfStream = new FileStream(currentFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (Stream inputImageStream = new FileStream(f2, FileMode.Open, FileAccess.Read, FileShare.Read))
+                using (Stream outputPdfStream = new FileStream(filename, FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    var reader = new PdfReader(inputPdfStream);
+                    var stamper = new PdfStamper(reader, outputPdfStream);
+                    var pdfContentByte = stamper.GetOverContent(1);
+
+                    iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(inputImageStream);
+                    image.ScaleToFit(mediabox);
+                    image.SetAbsolutePosition(0, 0);
+                    pdfContentByte.AddImage(image);
+                    stamper.Close();
+                }
+            }
+            else
             {
-                iTextSharp.text.Image img2 = iTextSharp.text.Image.GetInstance(f2);
-                img2.ScaleToFit(doc.PageSize);
-                img2.SetAbsolutePosition(0, 0);
-                doc.Add(img2);
-            }
+                Document doc = new Document(PageSize.A4, 0, 0, 0, 0);
+                PdfWriter.GetInstance(doc, new FileStream(filename, FileMode.Create));
+                doc.Open();
+                if (f2 != null)
+                {
+                    iTextSharp.text.Image img2 = iTextSharp.text.Image.GetInstance(f2);
+                    img2.ScaleToFit(doc.PageSize);
+                    img2.SetAbsolutePosition(0, 0);
+                    doc.Add(img2);
+                }
 
-            doc.Close();
+                doc.Close();
+            }
             return filename;
         }
 
@@ -570,7 +579,7 @@ namespace Reception
                     var transferOptions = new WinSCP.TransferOptions() { TransferMode = WinSCP.TransferMode.Binary };
 
                     //Ceheck and create folder
-                    String mftpFilePath = string.Format("/{0}/{1}年/{2}月/{3}/{4}.pdf", ftpRoot, DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.ToString("yyyyMMddhhmmss"));
+                    String mftpFilePath = string.Format("/{0}/{1}年/{2}月/{3}/{4}.pdf", ftpRoot, DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.ToString("yyyyMMddHHmmss"));
                     //session.CreateDirectory(Constants.FTPRoot);
 
                     FileInfo fi = new FileInfo(filename);
