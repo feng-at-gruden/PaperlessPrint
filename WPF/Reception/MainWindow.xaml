@@ -6,9 +6,8 @@
     <Grid>
         <InkCanvas x:Name="inkCanvas1" IsEnabled="False" Background="#11FFFFFF" VerticalAlignment="Center" Margin="10,18" HorizontalAlignment="Center"/>
 
-        <Button x:Name="btnConfirm" Content="签名完毕" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Margin="0,10,172,10" Click="btnConfirm_Click"/>
-        <Button x:Name="btnPrint" Content="纸质打印" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Margin="0,10,91,10" Click="btnPrint_Click"/>
+        <Button x:Name="btnConfirm" Content="签名完毕" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Margin="0,10,91,10" Click="btnConfirm_Click"/>
+        <Button x:Name="btnPrint" Content="纸质打印" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Margin="0,10,172,10" Click="btnPrint_Click" Visibility="Hidden" />
         <Button x:Name="btnExit" Content="退出" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="75" Margin="0,10,10,10" Click="btnExit_Click"/>
-        
     </Grid>
 </Window>

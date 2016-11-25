@@ -67,7 +67,6 @@ namespace Reception
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
-            SendPlaintText(NetWorkCommand.RECEPTION_EXIT);
             Application.Current.Shutdown();
         }
 
@@ -138,9 +137,9 @@ namespace Reception
             SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
 
             MessageBoxResult dr = MessageBox.Show("电子账单保存完毕！","成功", MessageBoxButton.OK, MessageBoxImage.Information);
-            if (dr == MessageBoxResult.OK && !Constants.DEBUG)
+            if (dr == MessageBoxResult.OK)
             {
-                this.Close();
+                Application.Current.Shutdown();
             }
         }   
 
@@ -154,6 +153,7 @@ namespace Reception
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            SendPlaintText(NetWorkCommand.RECEPTION_EXIT);
             CloseNetWork();
             if (!Constants.DEBUG)
             {

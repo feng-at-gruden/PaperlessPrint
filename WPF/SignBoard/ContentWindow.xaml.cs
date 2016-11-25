@@ -20,6 +20,7 @@ namespace SignBoard
     public partial class ContentWindow : Window
     {
         MainWindow SignatureWindow;
+        WebViewWindow adWindow = new WebViewWindow();
         PDFViewer pdfViewer;
 
 
@@ -27,7 +28,9 @@ namespace SignBoard
         {
             InitializeComponent();
             InitUI();
+
             ShowSignWindow();
+            ShowAD();
             //LoadPDF("C:\\Tools\\1.pdf");
         }
 
@@ -85,6 +88,30 @@ namespace SignBoard
             SignatureWindow.Show();
         }
 
+        public void ShowAD()
+        {
+            if (adWindow != null && adWindow.IsActive)
+                adWindow.Close();
+
+            adWindow = new WebViewWindow();
+            adWindow.ShowAD();
+            adWindow.Show();
+        }
+
+        public void ShowThanks()
+        {
+            if (adWindow != null && adWindow.IsActive)
+                adWindow.Close();
+
+            adWindow = new WebViewWindow();
+            adWindow.ShowThanks();
+            adWindow.Show();
+        }
+
+        public void CloseADWindow()
+        {
+            adWindow.Close();
+        }
 
         #endregion
 

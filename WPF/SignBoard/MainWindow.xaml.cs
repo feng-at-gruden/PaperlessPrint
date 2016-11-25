@@ -179,8 +179,11 @@ namespace SignBoard
                 server.Send(currentClient, NetWorkCommand.CLEAN);
         }
 
-        private void StartNewSignature()
+        private void StartNewSignature(bool closeAD = true)
         {
+            if (closeAD)
+                this.ContentWindow.CloseADWindow();
+
             CleanSignature();
             //Clean opened content
             if(WorkingWithPDF)
@@ -196,35 +199,28 @@ namespace SignBoard
 
         private void SignatureFinished(bool showThanks = true)
         {
-            StartNewSignature();
-
-            //TODO, display a thank message
-            if (showThanks)
-            {
-                MessageBox.Show("谢谢,欢迎下次光临！");
-            }
-
+            StartNewSignature(closeAD: false);
             EnableInkCanvas(false);
 
-            //Display WebView etc
+            //Display a thank message
+            if (showThanks)
+            {
+                this.ContentWindow.ShowThanks();
+            }
+            else
+            {
+                this.ContentWindow.ShowAD();
+            }
 
-            //currentClient.Close();
-            //currentClient = null;
+            currentClient.Close();
+            currentClient = null;
         }
 
         private void EnableInkCanvas(bool enable)
         {
             //TODO, hide buttons
             inkCanvas1.SetValue(InkCanvas.IsEnabledProperty, enable);
-            btnClean.SetValue(Button.VisibilityProperty, enable ? Visibility.Visible : Visibility.Hidden);
-            if(enable)
-            {
-
-            }
-            else
-            {
-
-            }
+            //btnClean.SetValue(Button.VisibilityProperty, enable ? Visibility.Visible : Visibility.Hidden);
         }
 
         /// <summary>
