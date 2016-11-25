@@ -48,12 +48,20 @@ namespace Reception
             if (SignatureWindow == null)
             {
                 SignatureWindow = new MainWindow();
-                //SignatureWindow.ContentWindow = this;
+                SignatureWindow.ContentWindow = this;
                 SignatureWindow.Show();
             }
         }
 
+        private void Window_Activated(object sender, EventArgs e)
+        {
 
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            Application.Current.Shutdown();
+        }
 
 
         #region Private Functions
@@ -88,17 +96,13 @@ namespace Reception
             return new Size(w, screenHeight);
 
         }
+
+        public void ClosePDF()
+        {
+            pdfReader.ClosePDF();
+        }
+
         #endregion 
-
-        private void Window_Activated(object sender, EventArgs e)
-        {
-            
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
-            Application.Current.Shutdown();
-        }
 
     }
 }

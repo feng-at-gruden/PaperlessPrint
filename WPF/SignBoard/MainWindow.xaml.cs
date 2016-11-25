@@ -64,6 +64,13 @@ namespace SignBoard
 
         #region UI Events
 
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            //e.Cancel = true;
+            CleanTempFiles();
+            Application.Current.Shutdown();
+        }
+
         private void Image_TouchDown(object sender, TouchEventArgs e)
         {
             CleanSignature();
@@ -73,13 +80,6 @@ namespace SignBoard
         {
             CleanSignature();
         }
-
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            //e.Cancel = true;
-            CleanTempFiles();
-        }
-
 
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
         {
@@ -148,7 +148,7 @@ namespace SignBoard
 
             //Update inkCanvas size;
             Size contentSize = UtilsHelper.GetA4DisplayAreaSize();
-            inkCanvas1.SetValue(InkCanvas.WidthProperty, contentSize.Height);
+            inkCanvas1.SetValue(InkCanvas.WidthProperty, contentSize.Height - 20);
             inkCanvas1.SetValue(InkCanvas.HeightProperty, contentSize.Width - 100);
 
             inkCanvas1.Strokes.StrokesChanged += this.Strokes_StrokesChanged;
@@ -483,6 +483,6 @@ namespace SignBoard
 
         #endregion
 
-        
+       
     }
 }

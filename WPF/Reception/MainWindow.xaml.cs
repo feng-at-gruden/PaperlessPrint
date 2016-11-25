@@ -43,6 +43,9 @@ namespace Reception
 
         int tempIndex = -1;
         bool WorkingWithPDF;
+        double pdfViewerW, pdfViewerH;
+
+        public PreviewWindow ContentWindow;
 
         #endregion
 
@@ -125,7 +128,6 @@ namespace Reception
             {
                 CleanTempFile(signatureFile);
                 CleanTempFile(pdfFile);
-                CleanTempFile(currentFileName);
             }
 
             if (!uploaded)
@@ -135,20 +137,24 @@ namespace Reception
             }
 
             SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
-
+            ContentWindow.ClosePDF();
+            ContentWindow.Hide();
+            this.Hide();
             MessageBoxResult dr = MessageBox.Show("电子账单保存完毕！","成功", MessageBoxButton.OK, MessageBoxImage.Information);
-            if (dr == MessageBoxResult.OK)
-            {
-                Application.Current.Shutdown();
-            }
+            client.Close();
+            Application.Current.Shutdown();
         }   
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
-            double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
+            /*
+            double pW = ((Grid)this.Content).RenderSize.Width;
+            double pH = ((Grid)this.Content).RenderSize.Height;
+            double scaleX = pW / billImageW;
+            double scaleY = pH / billImageH;
             ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
             inkCanvas1.LayoutTransform = sf;
+             */
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -157,6 +163,7 @@ namespace Reception
             CloseNetWork();
             if (!Constants.DEBUG)
             {
+                CleanTempFile(currentFileName);
                 CleanTempFileFolder();
             }
         }
@@ -338,7 +345,7 @@ namespace Reception
             double screenHeight = System.Windows.SystemParameters.PrimaryScreenHeight;
             double h = screenHeight - SystemParameters.CaptionHeight - SystemParameters.MenuBarHeight;
             //double w = Math.Floor(Constants.A4Width * h/ Constants.A4Height);
-            double w = Math.Floor(Constants.A4Width * h / Constants.A4Height);
+            double w = Constants.A4Width * h / Constants.A4Height;
 
             this.SetValue(Window.WidthProperty, w);
             this.SetValue(Window.HeightProperty, h);
@@ -347,24 +354,41 @@ namespace Reception
 
             //获取显示区域尺寸 并设置inkCanvas缩放比例
             if (WorkingWithPDF) 
-            { 
-                //int A4Width = 2604;
-                //int A4Height = 3507;
+            {
+                double SignBoardWidth = 960;
+                double SignBoardHeigh = 1280;
 
-                double SignBoardWidth = 1080 - 26;
-                double SignBoardHeigh = 1492;
+                billImageW = SignBoardWidth;
+                billImageH = SignBoardHeigh;
 
                 inkCanvas1.SetValue(InkCanvas.WidthProperty, SignBoardWidth);
                 inkCanvas1.SetValue(InkCanvas.HeightProperty, SignBoardHeigh);
 
-                billImageW = SignBoardWidth;
-                billImageH = SignBoardHeigh;
+                double rw = w -26;
+                double scaleX = rw / billImageW;
+                double scaleY = SignBoardHeigh * rw / SignBoardWidth / billImageH;
+                ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
+                inkCanvas1.LayoutTransform = sf;
+            }
+            else
+            {
+                double scaleX = w / billImageW;
+                double scaleY = h / billImageH;
+                ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
+                inkCanvas1.LayoutTransform = sf;
             }
 
-            double scaleX = ((Grid)this.Content).RenderSize.Width / billImageW;
-            double scaleY = ((Grid)this.Content).RenderSize.Height / billImageH;
-            ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
-            inkCanvas1.LayoutTransform = sf;
+            /*
+            PdfReader pdfReader = new PdfReader(currentFileName);
+            iTextSharp.text.Rectangle mediabox = pdfReader.GetPageSize(1);
+            pdfReader.Close();
+            pdfViewerW = mediabox.Height;
+            pdfViewerH = mediabox.Width;
+            */
+            //double pW = ((Grid)this.Content).RenderSize.Width;
+            //double pH = ((Grid)this.Content).RenderSize.Height;
+
+            
         }
 
         private void Log(String s)
@@ -434,6 +458,7 @@ namespace Reception
             if(!f.Exists)
             {
                 MessageBox.Show("账单文件不存在，请重试！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                client.Close();
                 Application.Current.Shutdown();
                 return;
             }
@@ -524,6 +549,7 @@ namespace Reception
             {
                 PdfReader pdfReader = new PdfReader(currentFileName);
                 iTextSharp.text.Rectangle mediabox = pdfReader.GetPageSize(1);
+                pdfReader.Close();
 
                 using (Stream inputPdfStream = new FileStream(currentFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
                 using (Stream inputImageStream = new FileStream(f2, FileMode.Open, FileAccess.Read, FileShare.Read))
