@@ -352,7 +352,7 @@ namespace Reception
                 //int A4Height = 3507;
 
                 double SignBoardWidth = 1080 - 26;
-                double SignBoardHeigh = 1528 - 200 - 10;
+                double SignBoardHeigh = 1492;
 
                 inkCanvas1.SetValue(InkCanvas.WidthProperty, SignBoardWidth);
                 inkCanvas1.SetValue(InkCanvas.HeightProperty, SignBoardHeigh);
@@ -434,7 +434,7 @@ namespace Reception
             if(!f.Exists)
             {
                 MessageBox.Show("账单文件不存在，请重试！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                this.Close();
+                Application.Current.Shutdown();
                 return;
             }
 
