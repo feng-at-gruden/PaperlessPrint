@@ -40,6 +40,10 @@ namespace SignBoard
         private string receiveFileName;
         private TcpClient currentClient;
 
+        bool stylusInputEnabled = true;
+        bool mouseInputEnabled = true;
+        bool touchInputEnabled = false;
+
         ImageBrush formBG;
 
         bool WorkingWithPDF;
@@ -99,6 +103,24 @@ namespace SignBoard
             }
         }
 
+        private void InkCanvas_PreviewTouchDown(object sender, TouchEventArgs e)
+        {
+            if (!touchInputEnabled)
+                e.Handled = true;
+        }
+
+        private void InkCanvas_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (!mouseInputEnabled)
+                e.Handled = true;
+        }
+
+        private void InkCanvas_PreviewStylusDown(object sender, StylusDownEventArgs e)
+        {
+            if (!stylusInputEnabled)
+                e.Handled = true;
+        }
+
         #endregion
 
 
@@ -130,6 +152,9 @@ namespace SignBoard
             inkCanvas1.SetValue(InkCanvas.HeightProperty, contentSize.Width - 100);
 
             inkCanvas1.Strokes.StrokesChanged += this.Strokes_StrokesChanged;
+            inkCanvas1.PreviewTouchDown += this.InkCanvas_PreviewTouchDown;
+            inkCanvas1.PreviewMouseDown += this.InkCanvas_PreviewMouseDown;
+            inkCanvas1.PreviewStylusDown += this.InkCanvas_PreviewStylusDown;
         }
 
 
