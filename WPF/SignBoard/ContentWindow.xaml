@@ -1,7 +1,7 @@
 ﻿<Window x:Class="SignBoard.ContentWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="签名设备" Height="300" Width="300" WindowState="Maximized" ResizeMode="NoResize" Closed="Window_Closed" Icon="Content/Images/clean.png" Deactivated="Window_Deactivated" Background="Black" Activated="Window_Activated" Topmost="False" WindowStyle="None" >
+        Title="签名设备" Height="300" Width="300" WindowState="Maximized" ResizeMode="NoResize" Closed="Window_Closed" Icon="Content/Images/clean.png" Background="Black" Topmost="False" WindowStyle="None" Loaded="Window_Loaded" >
     <Grid>
         <WindowsFormsHost Name="WindowsFormsHost1" Margin="0" HorizontalAlignment="Left" />
     </Grid>

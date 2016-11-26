@@ -70,7 +70,7 @@ namespace Reception
 
         private void btnExit_Click(object sender, RoutedEventArgs e)
         {
-            Application.Current.Shutdown();
+            this.Close();
         }
 
         private void btnPrint_Click(object sender, RoutedEventArgs e)
@@ -142,7 +142,7 @@ namespace Reception
             this.Hide();
             MessageBoxResult dr = MessageBox.Show("电子账单保存完毕！","成功", MessageBoxButton.OK, MessageBoxImage.Information);
             client.Close();
-            Application.Current.Shutdown();
+            this.Close();
         }   
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -160,13 +160,19 @@ namespace Reception
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             SendPlaintText(NetWorkCommand.RECEPTION_EXIT);
-            CloseNetWork();
             if (!Constants.DEBUG)
             {
                 CleanTempFile(currentFileName);
                 CleanTempFileFolder();
             }
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            CloseNetWork();
+            Application.Current.Shutdown();
+        }
+
 
         #endregion
 
@@ -474,7 +480,7 @@ namespace Reception
                 if (retry >= Constants.MaxTryConnect)
                 {
                     MessageBox.Show("签字板连接错误！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    Application.Current.Shutdown();
+                    //Application.Current.Shutdown();
                     return;
                 }
             }
@@ -649,6 +655,8 @@ namespace Reception
         }
 
         #endregion
+
+        
 
 
     }

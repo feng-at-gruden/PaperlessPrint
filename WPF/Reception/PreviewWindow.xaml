@@ -1,7 +1,7 @@
 ﻿<Window x:Class="Reception.PreviewWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PreviewWindow" Height="300" Width="300" Activated="Window_Activated" Closed="Window_Closed" WindowStyle="None" BorderThickness="0" ResizeMode="NoResize">
+        Title="酒店无纸化账单" Height="300" Width="300" Closed="Window_Closed" WindowStyle="None" BorderThickness="0" ResizeMode="NoResize" Loaded="Window_Loaded" Topmost="False" Icon="Content/Images/app.png">
     <Grid>
         <WindowsFormsHost Name="WindowsFormsHost1" Margin="0" />
     </Grid>

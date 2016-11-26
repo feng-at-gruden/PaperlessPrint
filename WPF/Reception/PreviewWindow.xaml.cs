@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Common;
+using Common.Utiles;
 
 namespace Reception
 {
@@ -42,27 +43,28 @@ namespace Reception
                 currentFileName = this.args[0];
                 pdfReader.LoadPDF(currentFileName);
                 pdfReader.SetZoomLevel(1);
-                //long level = 
             }
 
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
             if (SignatureWindow == null)
             {
                 SignatureWindow = new MainWindow();
                 SignatureWindow.ContentWindow = this;
+                SignatureWindow.Owner = this;
                 SignatureWindow.Show();
             }
-        }
-
-        private void Window_Activated(object sender, EventArgs e)
-        {
-
+            //WinHookerHelper.EnableSpecialKeyboardHook();
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            //WinHookerHelper.ReleaseSpecialKeyboardHook();
             Application.Current.Shutdown();
         }
-
+        
 
         #region Private Functions
 
@@ -104,5 +106,6 @@ namespace Reception
 
         #endregion 
 
+        
     }
 }

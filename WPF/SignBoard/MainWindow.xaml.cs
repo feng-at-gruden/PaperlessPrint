@@ -47,6 +47,7 @@ namespace SignBoard
         ImageBrush formBG;
 
         bool WorkingWithPDF;
+        bool ClientCleanClosed;
         string currentBillFile;
 
         # endregion
@@ -160,6 +161,7 @@ namespace SignBoard
 
         private void Log(string log)
         {
+            /*
             if (!Dispatcher.CheckAccess())
             {
                 Dispatcher.Invoke(
@@ -168,7 +170,7 @@ namespace SignBoard
             else
             {
                 this.Title = log;
-            }
+            }*/
         }
 
         private void DisplayBill(string filename)
@@ -191,7 +193,6 @@ namespace SignBoard
                 inkCanvas1.Background = formBG;
             }
             UpdateReceiveProgress(0);
-            CleanTempFile(currentBillFile);
         }
 
         private void CleanSignature()
@@ -224,6 +225,7 @@ namespace SignBoard
 
         private void SignatureFinished(bool showThanks = true)
         {
+            ClientCleanClosed = true;
             StartNewSignature(closeAD: false);
             EnableInkCanvas(false);
 
@@ -323,14 +325,28 @@ namespace SignBoard
 
         private void ClientConnected(object sender, TcpClientConnectedEventArgs e)
         {
+            ClientCleanClosed = false;
             currentClient = e.TcpClient;
             Log(string.Format(CultureInfo.InvariantCulture, "{0} connected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
         private void ClientDisconnected(object sender, TcpClientDisconnectedEventArgs e)
         {
+            if (!ClientCleanClosed)
+            {
+                if (!Dispatcher.CheckAccess())
+                {
+                    Dispatcher.Invoke(
+                            () => SignatureFinished(showThanks: false), System.Windows.Threading.DispatcherPriority.Normal);
+                }
+                else
+                {
+                    SignatureFinished(showThanks: false);
+                }
+            }
+            
             currentClient = null;
-            Log(string.Format(CultureInfo.InvariantCulture, "{0} disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
+            //Log(string.Format(CultureInfo.InvariantCulture, "{0} disconnected.", e.TcpClient.Client.RemoteEndPoint.ToString()));
         }
 
 

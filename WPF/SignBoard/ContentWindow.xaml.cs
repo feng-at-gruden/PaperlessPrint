@@ -11,6 +11,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.IO;
+using Common;
+using Common.Utiles;
 
 namespace SignBoard
 {
@@ -22,33 +25,29 @@ namespace SignBoard
         MainWindow SignatureWindow;
         WebViewWindow adWindow = new WebViewWindow();
         PDFViewer pdfViewer;
+        string currentPDF;
 
 
         public ContentWindow()
         {
             InitializeComponent();
             InitUI();
-
-            ShowSignWindow();
-            ShowAD();
-            //LoadPDF("C:\\Tools\\1.pdf");
+            //WinHookerHelper.EnableSpecialKeyboardHook();
         }
 
         #region UI Events
 
         private void Window_Closed(object sender, EventArgs e)
         {
+            //WinHookerHelper.ReleaseSpecialKeyboardHook();
+            CleanTempFiles();
             Application.Current.Shutdown();
         }
 
-        private void Window_Deactivated(object sender, EventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            
-        }
-
-        private void Window_Activated(object sender, EventArgs e)
-        {
-            
+            ShowSignWindow();
+            ShowAD();
         }
 
         #endregion
@@ -58,6 +57,7 @@ namespace SignBoard
 
         public void LoadPDF(string filename)
         {
+            currentPDF = filename;
             if (pdfViewer != null)
                 pdfViewer.LoadPDF(filename);
         }
@@ -66,6 +66,41 @@ namespace SignBoard
         {
             if (pdfViewer != null)
                 pdfViewer.ClosePDF();
+
+            CleanTempFile(currentPDF);
+        }
+
+
+        private void CleanTempFiles()
+        {
+            if (!Directory.Exists(Constants.TempFileFolder))
+            {
+                return;
+            }
+            //Clean local temp files
+            foreach (string d in Directory.GetFileSystemEntries(Constants.TempFileFolder))
+            {
+                if (File.Exists(d))
+                {
+                    try
+                    {
+                        File.Delete(d);
+                    }
+                    catch { }
+                }
+            }
+        }
+
+        private void CleanTempFile(string filename)
+        {
+            if (File.Exists(filename))
+            {
+                try
+                {
+                    File.Delete(filename);
+                }
+                catch { }
+            }
         }
 
         private void InitUI()
@@ -85,21 +120,25 @@ namespace SignBoard
         {
             SignatureWindow = new MainWindow();
             SignatureWindow.ContentWindow = this;
+            SignatureWindow.Owner = this;
             SignatureWindow.Show();
         }
 
         public void ShowAD()
         {
+            ClosePDF();
             if (adWindow != null && adWindow.IsActive)
                 adWindow.Close();
 
             adWindow = new WebViewWindow();
             adWindow.ShowAD();
+            adWindow.Owner = this;
             adWindow.Show();
         }
 
         public void ShowThanks()
         {
+            ClosePDF();
             if (adWindow != null && adWindow.IsActive)
                 adWindow.Close();
 
@@ -114,6 +153,8 @@ namespace SignBoard
         }
 
         #endregion
+
+        
 
     }
 }
