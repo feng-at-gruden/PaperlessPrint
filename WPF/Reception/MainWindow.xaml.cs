@@ -124,9 +124,9 @@ namespace Reception
             var uploaded = UploadToFtp(pdfFile);
 
             //清除文件
+            CleanTempFile(signatureFile);
             if (!Constants.DEBUG)
             {
-                CleanTempFile(signatureFile);
                 CleanTempFile(pdfFile);
             }
 
@@ -143,7 +143,17 @@ namespace Reception
             MessageBoxResult dr = MessageBox.Show("电子账单保存完毕！","成功", MessageBoxButton.OK, MessageBoxImage.Information);
             client.Close();
             this.Close();
-        }   
+        }
+
+        private void btnPre_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentWindow.PrePage();
+        }
+
+        private void btnNext_Click(object sender, RoutedEventArgs e)
+        {
+            this.ContentWindow.NextPage();
+        }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
@@ -253,6 +263,32 @@ namespace Reception
                 Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
                 CleanSignature();
             }
+            else if (cmd.IndexOf(NetWorkCommand.PAGEUP) >= 0)
+            {
+                ContentWindow.PrePage();
+                if (!Dispatcher.CheckAccess())
+                {
+                    Dispatcher.Invoke(
+                            () => ShowOrHideCanvas(), System.Windows.Threading.DispatcherPriority.Normal);
+                }
+                else
+                {
+                    ShowOrHideCanvas();
+                }
+            }
+            else if (cmd.IndexOf(NetWorkCommand.PAGEDOWN) >= 0)
+            {
+                ContentWindow.NextPage();
+                if (!Dispatcher.CheckAccess())
+                {
+                    Dispatcher.Invoke(
+                            () => ShowOrHideCanvas(), System.Windows.Threading.DispatcherPriority.Normal);
+                }
+                else
+                {
+                    ShowOrHideCanvas();
+                }
+            }
             else if (cmd.IndexOf(NetWorkCommand.STYLUS_ADD) >= 0 || cmd.IndexOf(NetWorkCommand.STYLUS_REMOVE) >= 0)
             {
                 if (cmd.IndexOf(NetWorkCommand.CLEAN) >= 0)
@@ -361,8 +397,8 @@ namespace Reception
             //获取显示区域尺寸 并设置inkCanvas缩放比例
             if (WorkingWithPDF) 
             {
-                double SignBoardWidth = 960;
-                double SignBoardHeigh = 1280;
+                double SignBoardWidth = 902;
+                double SignBoardHeigh = 1278;
 
                 billImageW = SignBoardWidth;
                 billImageH = SignBoardHeigh;
@@ -370,11 +406,17 @@ namespace Reception
                 inkCanvas1.SetValue(InkCanvas.WidthProperty, SignBoardWidth);
                 inkCanvas1.SetValue(InkCanvas.HeightProperty, SignBoardHeigh);
 
-                double rw = w -26;
+                double rw = w - 26;
                 double scaleX = rw / billImageW;
                 double scaleY = SignBoardHeigh * rw / SignBoardWidth / billImageH;
                 ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
                 inkCanvas1.LayoutTransform = sf;
+
+                /*if (ContentWindow.PDFPageCount > 1)
+                {
+                    var enable = ContentWindow.CurrentPageNumber == ContentWindow.PDFPageCount ? Visibility.Visible : Visibility.Hidden;
+                    inkCanvas1.SetValue(Canvas.VisibilityProperty, enable);
+                }*/
             }
             else
             {
@@ -384,17 +426,6 @@ namespace Reception
                 inkCanvas1.LayoutTransform = sf;
             }
 
-            /*
-            PdfReader pdfReader = new PdfReader(currentFileName);
-            iTextSharp.text.Rectangle mediabox = pdfReader.GetPageSize(1);
-            pdfReader.Close();
-            pdfViewerW = mediabox.Height;
-            pdfViewerH = mediabox.Width;
-            */
-            //double pW = ((Grid)this.Content).RenderSize.Width;
-            //double pH = ((Grid)this.Content).RenderSize.Height;
-
-            
         }
 
         private void Log(String s)
@@ -402,6 +433,14 @@ namespace Reception
             //TODO
         }
 
+        private void ShowOrHideCanvas()
+        {
+            if (ContentWindow.PDFPageCount > 1)
+            {
+                var enable = ContentWindow.CurrentPageNumber == ContentWindow.PDFPageCount ? Visibility.Visible : Visibility.Hidden;
+                inkCanvas1.SetValue(Canvas.VisibilityProperty, enable);
+            }
+        }
 
         private BitmapImage LoadImage(String filepath)
         {
@@ -480,7 +519,7 @@ namespace Reception
                 if (retry >= Constants.MaxTryConnect)
                 {
                     MessageBox.Show("签字板连接错误！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                    //Application.Current.Shutdown();
+                    Application.Current.Shutdown();
                     return;
                 }
             }
@@ -554,7 +593,7 @@ namespace Reception
             if(WorkingWithPDF)
             {
                 PdfReader pdfReader = new PdfReader(currentFileName);
-                iTextSharp.text.Rectangle mediabox = pdfReader.GetPageSize(1);
+                iTextSharp.text.Rectangle mediabox = pdfReader.GetPageSize(pdfReader.NumberOfPages);
                 pdfReader.Close();
 
                 using (Stream inputPdfStream = new FileStream(currentFileName, FileMode.Open, FileAccess.Read, FileShare.Read))
@@ -563,7 +602,7 @@ namespace Reception
                 {
                     var reader = new PdfReader(inputPdfStream);
                     var stamper = new PdfStamper(reader, outputPdfStream);
-                    var pdfContentByte = stamper.GetOverContent(1);
+                    var pdfContentByte = stamper.GetOverContent(reader.NumberOfPages);
 
                     iTextSharp.text.Image image = iTextSharp.text.Image.GetInstance(inputImageStream);
                     image.ScaleToFit(mediabox);
@@ -656,6 +695,7 @@ namespace Reception
 
         #endregion
 
+        
         
 
 

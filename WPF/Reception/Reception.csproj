@@ -86,12 +86,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PDFReader.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="PDFReader.Designer.cs">
-      <DependentUpon>PDFReader.cs</DependentUpon>
-    </Compile>
     <Compile Include="PreviewWindow.xaml.cs">
       <DependentUpon>PreviewWindow.xaml</DependentUpon>
     </Compile>
@@ -108,9 +102,6 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <EmbeddedResource Include="PDFReader.resx">
-      <DependentUpon>PDFReader.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>

@@ -13,6 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Common;
 using Common.Utiles;
+using Common.Controls;
 
 namespace Reception
 {
@@ -25,9 +26,12 @@ namespace Reception
         #region Field
         private string[] args = null;
         private String currentFileName;
-        PDFReader pdfReader;
+        PDFViewer pdfReader;
 
         MainWindow SignatureWindow;
+
+        public int CurrentPageNumber { get { return pdfReader.CurrentPageNumber; } }
+        public int PDFPageCount { get { return pdfReader.PageCount; } }
 
         #endregion
 
@@ -44,7 +48,6 @@ namespace Reception
                 pdfReader.LoadPDF(currentFileName);
                 pdfReader.SetZoomLevel(1);
             }
-
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -62,6 +65,8 @@ namespace Reception
         private void Window_Closed(object sender, EventArgs e)
         {
             //WinHookerHelper.ReleaseSpecialKeyboardHook();
+            pdfReader.ClosePDF();
+            pdfReader.CleanTempFiles();
             Application.Current.Shutdown();
         }
         
@@ -83,7 +88,7 @@ namespace Reception
             WindowsFormsHost1.SetValue(Canvas.WidthProperty, w);
             WindowsFormsHost1.SetValue(Canvas.HeightProperty, h);
 
-            pdfReader = new PDFReader();
+            pdfReader = new PDFViewer();
             WindowsFormsHost1.Child = pdfReader;
         }
 
@@ -99,13 +104,34 @@ namespace Reception
 
         }
 
+        #endregion 
+
+        
+        #region Public Functions
+
+        public void NextPage()
+        {
+            if (pdfReader.PageCount >1 && pdfReader.CurrentPageNumber < pdfReader.PageCount)
+            {
+                pdfReader.GotoPage(++pdfReader.CurrentPageNumber);
+            }
+        }
+
+        public void PrePage()
+        {
+            if (pdfReader.PageCount > 1 && pdfReader.CurrentPageNumber > 1)
+            {
+                pdfReader.GotoPage(--pdfReader.CurrentPageNumber);
+            }
+        }
+
         public void ClosePDF()
         {
             pdfReader.ClosePDF();
         }
 
-        #endregion 
+        #endregion
 
-        
+
     }
 }

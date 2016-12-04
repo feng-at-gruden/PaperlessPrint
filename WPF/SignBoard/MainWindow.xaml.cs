@@ -44,6 +44,8 @@ namespace SignBoard
         bool mouseInputEnabled = true;
         bool touchInputEnabled = false;
 
+        string CanvasColor = "#11FFFFFF";
+
         ImageBrush formBG;
 
         bool WorkingWithPDF;
@@ -72,15 +74,28 @@ namespace SignBoard
             Application.Current.Shutdown();
         }
 
-        private void Image_TouchDown(object sender, TouchEventArgs e)
-        {
-            CleanSignature();
-        }
-
         private void Image_MouseDown(object sender, MouseButtonEventArgs e)
         {
             CleanSignature();
         }
+
+        private void btnNext_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.ContentWindow.NextPage();
+            if (currentClient != null)
+                server.Send(currentClient, NetWorkCommand.PAGEDOWN);
+            ShowOrHideCanvas();
+        }
+        
+
+        private void btnPrevious_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            this.ContentWindow.PrePage();
+            if (currentClient != null)
+                server.Send(currentClient, NetWorkCommand.PAGEUP);
+            ShowOrHideCanvas();
+        }
+        
 
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
         {
@@ -149,9 +164,11 @@ namespace SignBoard
 
             //Update inkCanvas size;
             Size contentSize = UtilsHelper.GetA4DisplayAreaSize();
-            inkCanvas1.SetValue(InkCanvas.WidthProperty, contentSize.Height - 20);
-            inkCanvas1.SetValue(InkCanvas.HeightProperty, contentSize.Width - 100);
-
+            double w = contentSize.Height - 58;
+            double h = contentSize.Width - 80;
+            inkCanvas1.SetValue(InkCanvas.WidthProperty, w);
+            inkCanvas1.SetValue(InkCanvas.HeightProperty, h);
+            //MessageBox.Show(w + " - " + h);
             inkCanvas1.Strokes.StrokesChanged += this.Strokes_StrokesChanged;
             inkCanvas1.PreviewTouchDown += this.InkCanvas_PreviewTouchDown;
             inkCanvas1.PreviewMouseDown += this.InkCanvas_PreviewMouseDown;
@@ -161,16 +178,7 @@ namespace SignBoard
 
         private void Log(string log)
         {
-            /*
-            if (!Dispatcher.CheckAccess())
-            {
-                Dispatcher.Invoke(
-                        () => this.Title = log, System.Windows.Threading.DispatcherPriority.Normal);
-            }
-            else
-            {
-                this.Title = log;
-            }*/
+            
         }
 
         private void DisplayBill(string filename)
@@ -180,6 +188,15 @@ namespace SignBoard
             if (WorkingWithPDF)
             {
                 ContentWindow.LoadPDF(currentBillFile);
+                if (ContentWindow.PDFPageCount > 1)
+                {
+                    var enable = ContentWindow.CurrentPageNumber == ContentWindow.PDFPageCount ? Visibility.Visible : Visibility.Hidden;
+                    inkCanvas1.SetValue(Canvas.VisibilityProperty, enable);
+                }
+                else
+                {
+                    //TODO
+                }
             }
             else
             {
@@ -218,7 +235,7 @@ namespace SignBoard
             }
             else
             {
-                inkCanvas1.Background = (Brush)new System.Windows.Media.BrushConverter().ConvertFromString("#11FFFFFF");
+                inkCanvas1.Background = (Brush)new System.Windows.Media.BrushConverter().ConvertFromString(CanvasColor);
             }
             EnableInkCanvas(true);
         }
@@ -248,6 +265,15 @@ namespace SignBoard
             //TODO, hide buttons
             inkCanvas1.SetValue(InkCanvas.IsEnabledProperty, enable);
             //btnClean.SetValue(Button.VisibilityProperty, enable ? Visibility.Visible : Visibility.Hidden);
+        }
+
+        private void ShowOrHideCanvas()
+        {
+            if (ContentWindow.PDFPageCount > 1)
+            {
+                var enable = ContentWindow.CurrentPageNumber == ContentWindow.PDFPageCount ? Visibility.Visible : Visibility.Hidden;
+                inkCanvas1.SetValue(Canvas.VisibilityProperty, enable);
+            }
         }
 
         /// <summary>
@@ -498,6 +524,8 @@ namespace SignBoard
         }
 
         #endregion
+
+        
 
        
     }

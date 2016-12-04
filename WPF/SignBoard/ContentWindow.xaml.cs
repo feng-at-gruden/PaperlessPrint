@@ -14,6 +14,7 @@ using System.Windows.Shapes;
 using System.IO;
 using Common;
 using Common.Utiles;
+using Common.Controls;
 
 namespace SignBoard
 {
@@ -27,6 +28,8 @@ namespace SignBoard
         PDFViewer pdfViewer;
         string currentPDF;
 
+        public int CurrentPageNumber { get { return pdfViewer.CurrentPageNumber; } }
+        public int PDFPageCount { get { return pdfViewer.PageCount; } }
 
         public ContentWindow()
         {
@@ -65,9 +68,27 @@ namespace SignBoard
         public void ClosePDF()
         {
             if (pdfViewer != null)
+            {
                 pdfViewer.ClosePDF();
-
+                pdfViewer.CleanTempFiles();
+            }
             CleanTempFile(currentPDF);
+        }
+
+        public void NextPage()
+        {
+            if (pdfViewer.PageCount > 1 && pdfViewer.CurrentPageNumber < pdfViewer.PageCount)
+            {
+                pdfViewer.GotoPage(++pdfViewer.CurrentPageNumber);
+            }
+        }
+
+        public void PrePage()
+        {
+            if (pdfViewer.PageCount > 1 && pdfViewer.CurrentPageNumber > 1)
+            {
+                pdfViewer.GotoPage(--pdfViewer.CurrentPageNumber);
+            }
         }
 
 
@@ -110,10 +131,8 @@ namespace SignBoard
             WindowsFormsHost1.SetValue(Canvas.HeightProperty, contentSize.Height);
 
             pdfViewer = new PDFViewer();
+            pdfViewer.Rotate = 3;
             WindowsFormsHost1.Child = pdfViewer;
-
-            //PDFReader pdfReader = new PDFReader();
-            //WindowsFormsHost1.Child = pdfReader;
         }
 
         private void ShowSignWindow()
