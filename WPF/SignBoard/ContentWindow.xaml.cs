@@ -163,12 +163,14 @@ namespace SignBoard
 
             adWindow = new WebViewWindow();
             adWindow.ShowThanks();
+            adWindow.Owner = this;
             adWindow.Show();
         }
 
         public void CloseADWindow()
         {
             adWindow.Close();
+            adWindow = null;
         }
 
         #endregion

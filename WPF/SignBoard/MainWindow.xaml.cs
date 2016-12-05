@@ -403,7 +403,7 @@ namespace SignBoard
         private void DatagramReceived(object sender, TcpDatagramReceivedEventArgs<byte[]> e)
         {
             currentClient = e.TcpClient;
-            if (e.Datagram[0] == 35 && e.Datagram[1] == 35 && e.Datagram.Length < 30)     // Start with ## is plaint CMD
+            if (e.Datagram[0] == 35 && e.Datagram[1] == 35 && e.Datagram.Length < 100)     // Start with ## is plaint CMD
             {
                 string cmd = System.Text.Encoding.Default.GetString(e.Datagram);
                 if (cmd.IndexOf(NetWorkCommand.SEND_FILE) >= 0)

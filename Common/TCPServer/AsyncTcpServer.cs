@@ -320,7 +320,8 @@ namespace Common.TCPServer
 
         private void HandleDatagramWritten(IAsyncResult ar)
         {
-            ((TcpClient)ar.AsyncState).GetStream().EndWrite(ar);
+            if(((TcpClient)ar.AsyncState).Connected)
+                ((TcpClient)ar.AsyncState).GetStream().EndWrite(ar);
         }
 
         /// <summary>

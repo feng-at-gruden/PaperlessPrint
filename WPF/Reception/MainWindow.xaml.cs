@@ -125,24 +125,21 @@ namespace Reception
 
             //清除文件
             CleanTempFile(signatureFile);
-            if (!Constants.DEBUG)
-            {
-                CleanTempFile(pdfFile);
-            }
-
+            
             if (!uploaded)
             {
                 MessageBox.Show("账单文件上传失败！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
-            ContentWindow.ClosePDF();
+            var a = MessageBox.Show("电子账单保存完毕！","成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            if(a == MessageBoxResult.OK)
+            {
+                SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
+                this.Close();
+            }
             ContentWindow.Hide();
             this.Hide();
-            MessageBoxResult dr = MessageBox.Show("电子账单保存完毕！","成功", MessageBoxButton.OK, MessageBoxImage.Information);
-            client.Close();
-            this.Close();
         }
 
         private void btnPre_Click(object sender, RoutedEventArgs e)
@@ -157,28 +154,23 @@ namespace Reception
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            /*
-            double pW = ((Grid)this.Content).RenderSize.Width;
-            double pH = ((Grid)this.Content).RenderSize.Height;
-            double scaleX = pW / billImageW;
-            double scaleY = pH / billImageH;
-            ScaleTransform sf = new ScaleTransform(scaleX, scaleY);
-            inkCanvas1.LayoutTransform = sf;
-             */
+           
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            ContentWindow.ClosePDF();
             SendPlaintText(NetWorkCommand.RECEPTION_EXIT);
+            //client.Close();
+        }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
             if (!Constants.DEBUG)
             {
                 CleanTempFile(currentFileName);
                 CleanTempFileFolder();
             }
-        }
-
-        private void Window_Closed(object sender, EventArgs e)
-        {
             CloseNetWork();
             Application.Current.Shutdown();
         }
