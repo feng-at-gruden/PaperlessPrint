@@ -170,7 +170,7 @@ namespace SignBoard
         public void CloseADWindow()
         {
             adWindow.Close();
-            adWindow = null;
+            //adWindow = null;
         }
 
         #endregion
