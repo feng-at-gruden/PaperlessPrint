@@ -95,6 +95,12 @@ namespace SignBoard
                 server.Send(currentClient, NetWorkCommand.PAGEUP);
             ShowOrHideCanvas();
         }
+
+        private void btnInfo_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            //Shod about us popup
+            MessageBox.Show("酒店无纸化签名系统\n版本： v1.0\n技术支持： 青岛无线城市\nEmail： info@free-wifi.cn", "关于", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
         
 
         private void Strokes_StrokesChanged(object sender, StrokeCollectionChangedEventArgs e)
@@ -525,6 +531,7 @@ namespace SignBoard
 
         #endregion
 
+        
         
 
        

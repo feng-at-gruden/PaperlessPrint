@@ -146,8 +146,10 @@
   <ItemGroup>
     <Content Include="Content\Html\ThankYou.html" />
     <Content Include="Content\Html\Welcome.html" />
+    <Resource Include="Content\Images\info.png" />
+    <Resource Include="Content\Images\pen.png" />
+    <Resource Include="Content\Images\back.png" />
     <Resource Include="Content\Images\next.png" />
-    <Resource Include="Content\Images\previous.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

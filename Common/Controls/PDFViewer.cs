@@ -62,7 +62,6 @@ namespace Common.Controls
         {
             foxitReader1.CloseFile();
             foxitReader1.Invalidate();
-            //foxitReader1.
         }
 
         public void GotoPage(int p)
