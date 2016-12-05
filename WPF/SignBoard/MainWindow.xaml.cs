@@ -194,15 +194,7 @@ namespace SignBoard
             if (WorkingWithPDF)
             {
                 ContentWindow.LoadPDF(currentBillFile);
-                if (ContentWindow.PDFPageCount > 1)
-                {
-                    var enable = ContentWindow.CurrentPageNumber == ContentWindow.PDFPageCount ? Visibility.Visible : Visibility.Hidden;
-                    inkCanvas1.SetValue(Canvas.VisibilityProperty, enable);
-                }
-                else
-                {
-                    //TODO
-                }
+                ShowOrHideCanvas();
             }
             else
             {
@@ -279,6 +271,10 @@ namespace SignBoard
             {
                 var enable = ContentWindow.CurrentPageNumber == ContentWindow.PDFPageCount ? Visibility.Visible : Visibility.Hidden;
                 inkCanvas1.SetValue(Canvas.VisibilityProperty, enable);
+            }
+            else
+            {
+                inkCanvas1.SetValue(Canvas.VisibilityProperty, Visibility.Visible);
             }
         }
 
