@@ -41,7 +41,7 @@ namespace SignBoard
         private TcpClient currentClient;
 
         bool stylusInputEnabled = true;
-        bool mouseInputEnabled = true;
+        bool mouseInputEnabled = false;
         bool touchInputEnabled = false;
 
         string CanvasColor = "#11FFFFFF";

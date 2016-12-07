@@ -5,7 +5,7 @@
 
     <Grid x:Name="grid1" >
 
-        <InkCanvas x:Name="inkCanvas1" Width="255" IsEnabled="False" Margin="0,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Background="#11FFFFFF"/>
+        <InkCanvas x:Name="inkCanvas1" Width="255" IsEnabled="False" Margin="0,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Center" Background="#11FFFFFF" EditingMode="Ink"/>
         <Image x:Name="btnInfo" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="50,0,0,35" Source="Content/Images/info.png" Stretch="Fill" MouseDown="btnInfo_MouseDown" />
         <Image x:Name="btnPrevious" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="160,0,0,35" Source="Content/Images/back.png" Stretch="Fill"  MouseDown="btnPrevious_MouseDown" />
         <Image x:Name="btnNext" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="270,0,0,35" Source="Content/Images/next.png" Stretch="Fill"  MouseDown="btnNext_MouseDown" />

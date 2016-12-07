@@ -660,15 +660,19 @@ namespace Reception
         private void CleanTempFileFolder()
         {
             //Clean local jpg files
-            foreach (string d in Directory.GetFileSystemEntries(Constants.TempFileFolder))
+            if (Directory.Exists(Constants.TempFileFolder))
             {
-                if (File.Exists(d))
+                var dirs = Directory.GetFileSystemEntries(Constants.TempFileFolder);
+                foreach (string d in dirs)
                 {
-                    try
+                    if (File.Exists(d))
                     {
-                        File.Delete(d);
+                        try
+                        {
+                            File.Delete(d);
+                        }
+                        catch { }
                     }
-                    catch { }
                 }
             }
         }
