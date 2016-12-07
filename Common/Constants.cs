@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,7 +16,7 @@ namespace Common
         public static bool DEBUG = false;
 #endif
         public const String Version = "v0.1";
-        public const String TempFileFolder = "tmp";         //临时文件存储目录
+        public static String TempFileFolder = System.AppDomain.CurrentDomain.SetupInformation.ApplicationBase + "\\tmp";         //临时文件存储目录
 
         public const int SignatureDeviceIPPort = 12345;
         public const int BufferSize = 65536;

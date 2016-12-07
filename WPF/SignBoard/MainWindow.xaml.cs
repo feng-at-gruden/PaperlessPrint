@@ -99,7 +99,9 @@ namespace SignBoard
         private void btnInfo_MouseDown(object sender, MouseButtonEventArgs e)
         {
             //Shod about us popup
-            MessageBox.Show("酒店无纸化签名系统\n版本： v1.0\n技术支持： 青岛无线城市\nEmail： info@free-wifi.cn", "关于", MessageBoxButton.OK, MessageBoxImage.Information);
+            //MessageBox.Show("酒店无纸化签名系统\n版本： v1.0\n技术支持： 青岛无线城市\nEmail： info@free-wifi.cn", "关于", MessageBoxButton.OK, MessageBoxImage.Information);
+            var aboutUs = new AboutUsWindow();
+            aboutUs.Show();
         }
         
 
@@ -190,7 +192,7 @@ namespace SignBoard
         private void DisplayBill(string filename)
         {
             WorkingWithPDF = filename.IndexOf(".pdf", StringComparison.InvariantCultureIgnoreCase) >= 0;
-            currentBillFile = string.Format("{0}\\{1}\\{2}", Directory.GetCurrentDirectory(), Constants.TempFileFolder, filename);
+            currentBillFile = string.Format("{0}\\{1}", Constants.TempFileFolder, filename);
             if (WorkingWithPDF)
             {
                 ContentWindow.LoadPDF(currentBillFile);

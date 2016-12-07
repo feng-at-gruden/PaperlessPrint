@@ -59,10 +59,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="AboutUsWindow.xaml.cs">
+      <DependentUpon>AboutUsWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UtilsHelper.cs" />
     <Compile Include="WebViewWindow.xaml.cs">
       <DependentUpon>WebViewWindow.xaml</DependentUpon>
     </Compile>
+    <Page Include="AboutUsWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ContentWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
