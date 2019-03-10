@@ -499,6 +499,11 @@ namespace Reception
                 Application.Current.Shutdown();
                 return;
             }
+            else
+            {
+                //Read receipt number
+                var receiptNumber = ReadReceiptNumbrt(filepath);
+            }
 
             //Resize Window
             InitUI();
@@ -687,6 +692,28 @@ namespace Reception
                 }
                 catch { }
             }
+        }
+
+        private string ReadReceiptNumbrt(string filepath)
+        {
+            var text = "";
+            /*
+            PdfReader pdfReader = new PdfReader(filepath);
+            iTextSharp.text.pdf.parser.ITextExtractionStrategy strategy = new iTextSharp.text.pdf.parser.SimpleTextExtractionStrategy();
+            string currentText = iTextSharp.text.pdf.parser.PdfTextExtractor.GetTextFromPage(pdfReader, 1, strategy);
+            currentText = Encoding.UTF8.GetString(ASCIIEncoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(currentText)));
+
+            text += currentText;
+            pdfReader.Close();
+             */
+
+            Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
+            doc.LoadFromFile(filepath);
+            foreach (Spire.Pdf.PdfPageBase page in doc.Pages)
+            {
+                text += page.ExtractText();
+            }
+            return text;
         }
 
         #endregion

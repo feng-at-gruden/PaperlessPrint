@@ -56,6 +56,12 @@
       <HintPath>..\..\packages\iTextSharp.5.5.10\lib\itextsharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Spire.License">
+      <HintPath>..\..\packages\Spire.PDF.5.2.15\lib\net40\Spire.License.dll</HintPath>
+    </Reference>
+    <Reference Include="Spire.Pdf">
+      <HintPath>..\..\packages\Spire.PDF.5.2.15\lib\net40\Spire.Pdf.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
