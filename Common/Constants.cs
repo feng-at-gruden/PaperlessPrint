@@ -42,6 +42,7 @@ namespace Common
         public const String STYLUS_REMOVE = CMD + "STYLUS_REMOVE";
         public const String STYLUS_END = CMD + "STYLUS_END";
         public const String CLEAN = CMD + "CLEAN";
+        public const String DONE = CMD + "DONE";
         public const String PAGEUP = CMD + "PAGEUP";
         public const String PAGEDOWN = CMD + "PAGEDOWN";
         public const String SIGNATURE_DONE = CMD + "SIGNATURE_DONE";

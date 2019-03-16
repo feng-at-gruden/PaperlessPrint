@@ -9,7 +9,8 @@
         <Image x:Name="btnInfo" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="50,0,0,35" Source="Content/Images/info.png" Stretch="Fill" MouseDown="btnInfo_MouseDown" />
         <Image x:Name="btnPrevious" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="160,0,0,35" Source="Content/Images/back.png" Stretch="Fill"  MouseDown="btnPrevious_MouseDown" />
         <Image x:Name="btnNext" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="270,0,0,35" Source="Content/Images/next.png" Stretch="Fill"  MouseDown="btnNext_MouseDown" />
-        <Image x:Name="btnClean" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="380,0,0,35" Source="Content/Images/clean.png" Stretch="Fill" MouseDown="Image_MouseDown" />
+        <Image x:Name="btnClean" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="380,0,0,35" Source="Content/Images/remove.png" Stretch="Fill" MouseDown="btnClean_MouseDown" />
+        <Image x:Name="btnDone" Visibility="Visible" Width="65" HorizontalAlignment="Left" VerticalAlignment="Bottom" Height="65" Margin="490,0,0,35" Source="Content/Images/accept.png" Stretch="Fill" MouseDown="btnDone_MouseDown" />
         <ProgressBar x:Name="progressBar1" Height="15" VerticalAlignment="Bottom" Foreground="#FF59B5E0" Background="Black" BorderBrush="Black"/>
 
     </Grid>

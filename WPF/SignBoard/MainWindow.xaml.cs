@@ -74,9 +74,14 @@ namespace SignBoard
             Application.Current.Shutdown();
         }
 
-        private void Image_MouseDown(object sender, MouseButtonEventArgs e)
+        private void btnClean_MouseDown(object sender, MouseButtonEventArgs e)
         {
             CleanSignature();
+        }
+
+        private void btnDone_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            FinishSignature();
         }
 
         private void btnNext_MouseDown(object sender, MouseButtonEventArgs e)
@@ -124,6 +129,15 @@ namespace SignBoard
                 {
                     UpdateLineToReception(s, false);
                 }
+            }
+
+            if (inkCanvas1.Strokes.Count <= 0)
+            {
+                btnDone.Visibility = System.Windows.Visibility.Hidden;
+            }
+            else
+            {
+                btnDone.Visibility = System.Windows.Visibility.Visible;
             }
         }
 
@@ -216,10 +230,27 @@ namespace SignBoard
         {
             UpdateReceiveProgress(0);
             if (inkCanvas1.Strokes != null)
+            {
                 inkCanvas1.Strokes.Clear();
+                btnDone.Visibility = System.Windows.Visibility.Hidden;
+            }
+                
 
             if (currentClient != null)
                 server.Send(currentClient, NetWorkCommand.CLEAN);
+        }
+
+        private void FinishSignature()
+        {
+            if (inkCanvas1.Strokes.Count <= 0)
+            {
+                MessageBox.Show("签名为空，请重试！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            UpdateReceiveProgress(0);
+
+            if (currentClient != null)
+                server.Send(currentClient, NetWorkCommand.DONE);
         }
 
         private void StartNewSignature(bool closeAD = true)

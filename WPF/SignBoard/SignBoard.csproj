@@ -65,6 +65,9 @@
   <PropertyGroup>
     <SignManifests>true</SignManifests>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>Signature.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -159,9 +162,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Content\Images\clean.png" />
-  </ItemGroup>
-  <ItemGroup>
     <COMReference Include="AxFoxitReaderSDKProLib">
       <Guid>{5434C5AD-533F-4CE7-87D8-4F7EDD33F78A}</Guid>
       <VersionMajor>3</VersionMajor>
@@ -183,6 +183,9 @@
   <ItemGroup>
     <Content Include="Content\Html\ThankYou.html" />
     <Content Include="Content\Html\Welcome.html" />
+    <Resource Include="Signature.ico" />
+    <Resource Include="Content\Images\remove.png" />
+    <Resource Include="Content\Images\accept.png" />
     <Resource Include="Content\Images\info.png" />
     <Resource Include="Content\Images\pen.png" />
     <Resource Include="Content\Images\back.png" />

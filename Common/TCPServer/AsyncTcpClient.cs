@@ -278,7 +278,9 @@ namespace Common.TCPServer
                 // then start reading from the network again
                 stream.BeginRead(buffer, 0, buffer.Length, HandleDatagramReceived, buffer);
             }
-            catch { }
+            catch (Exception ex) {
+                var temp = ex;
+            }
         }
 
         #endregion

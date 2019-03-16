@@ -18,6 +18,7 @@ using System.Net;
 using System.Globalization;
 using System.IO;
 using System.Threading;
+using System.Text.RegularExpressions;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
 using Common;
@@ -108,38 +109,12 @@ namespace Reception
         /// <param name="e"></param>
         private void btnConfirm_Click(object sender, RoutedEventArgs e)
         {
-            if(inkCanvas1.Strokes.Count<=0)
+            if (inkCanvas1.Strokes.Count <= 0)
             {
-                MessageBox.Show("签名为空，请重试！","错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("签名为空，请重试！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-
-            //Save signature image
-            string signatureFile = SaveTempSignature();
-
-            //合并生成PDF
-            string pdfFile = GeneratePDF(signatureFile);
-
-            //上传FTP
-            var uploaded = UploadToFtp(pdfFile);
-
-            //清除文件
-            CleanTempFile(signatureFile);
-            
-            if (!uploaded)
-            {
-                MessageBox.Show("账单文件上传失败！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            var a = MessageBox.Show("电子账单保存完毕！","成功", MessageBoxButton.OK, MessageBoxImage.Information);
-            if(a == MessageBoxResult.OK)
-            {
-                SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
-                this.Close();
-            }
-            ContentWindow.Hide();
-            this.Hide();
+            FinishAndUpload();
         }
 
         private void btnPre_Click(object sender, RoutedEventArgs e)
@@ -254,6 +229,13 @@ namespace Reception
             {
                 Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
                 CleanSignature();
+            }
+            else if (cmd.IndexOf(NetWorkCommand.DONE) >= 0)
+            {
+                Log(string.Format(CultureInfo.InvariantCulture, "Received:{0}", cmd));
+                //FinishAndUpload();
+                //btnConfirm.RaiseEvent(new RoutedEventArgs(Button.ClickEvent));
+                btnConfirm.Dispatcher.Invoke(new Action(() => { btnConfirm.RaiseEvent(new RoutedEventArgs(Button.ClickEvent)); }));
             }
             else if (cmd.IndexOf(NetWorkCommand.PAGEUP) >= 0)
             {
@@ -626,6 +608,40 @@ namespace Reception
             return filename;
         }
 
+        private void FinishAndUpload()
+        {
+            
+
+            //Save signature image
+            string signatureFile = SaveTempSignature();
+
+            //合并生成PDF
+            string pdfFile = GeneratePDF(signatureFile);
+
+            //上传FTP
+            var uploaded = UploadToFtp(pdfFile);
+
+            //清除文件
+            CleanTempFile(signatureFile);
+
+            if (!uploaded)
+            {
+                MessageBox.Show("账单文件上传失败！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var a = MessageBox.Show("电子账单保存完毕！", "成功", MessageBoxButton.OK, MessageBoxImage.Information);
+            if (a == MessageBoxResult.OK)
+            {
+                SendPlaintText(NetWorkCommand.SIGNATURE_DONE);
+                this.Close();
+
+                ContentWindow.Hide();
+                this.Hide();
+            }
+            
+        }
+
         private bool UploadToFtp(string filename)
         {
             try
@@ -697,23 +713,50 @@ namespace Reception
         private string ReadReceiptNumbrt(string filepath)
         {
             var text = "";
-            /*
-            PdfReader pdfReader = new PdfReader(filepath);
-            iTextSharp.text.pdf.parser.ITextExtractionStrategy strategy = new iTextSharp.text.pdf.parser.SimpleTextExtractionStrategy();
-            string currentText = iTextSharp.text.pdf.parser.PdfTextExtractor.GetTextFromPage(pdfReader, 1, strategy);
-            currentText = Encoding.UTF8.GetString(ASCIIEncoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(currentText)));
-
-            text += currentText;
-            pdfReader.Close();
-             */
-
-            Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
-            doc.LoadFromFile(filepath);
-            foreach (Spire.Pdf.PdfPageBase page in doc.Pages)
+            int method = 1;
+            if (method == 1)
             {
-                text += page.ExtractText();
+                PdfReader pdfReader = new PdfReader(filepath);
+                iTextSharp.text.pdf.parser.ITextExtractionStrategy strategy = new iTextSharp.text.pdf.parser.SimpleTextExtractionStrategy();
+                string currentText = iTextSharp.text.pdf.parser.PdfTextExtractor.GetTextFromPage(pdfReader, 1, strategy);
+                currentText = Encoding.UTF8.GetString(ASCIIEncoding.Convert(Encoding.Default, Encoding.UTF8, Encoding.Default.GetBytes(currentText)));
+                text += currentText;
+                pdfReader.Close();
             }
+            else
+            {
+                Spire.Pdf.PdfDocument doc = new Spire.Pdf.PdfDocument();
+                doc.LoadFromFile(filepath);
+                Spire.Pdf.Exporting.Text.SimpleTextExtractionStrategy strategy = new Spire.Pdf.Exporting.Text.SimpleTextExtractionStrategy();
+                System.Drawing.RectangleF rec = new System.Drawing.RectangleF(0, 0, 595, 421);
+                foreach (Spire.Pdf.PdfPageBase page in doc.Pages)
+                {
+                    text += page.ExtractText(rec, strategy);
+                }
+
+                
+            }
+            //var k = ExtractPdfContent(text);
             return text;
+        }
+
+        const string PdfTableFormat = @"\(.*\)Tj";
+        Regex PdfTableRegex = new Regex(PdfTableFormat, RegexOptions.Compiled);
+
+        List<string> ExtractPdfContent(string rawPdfContent)
+        {
+            var matches = PdfTableRegex.Matches(rawPdfContent);
+
+            var list = matches.Cast<Match>()
+                .Select(m => m.Value
+                    .Substring(1) //remove leading (
+                    .Remove(m.Value.Length - 4) //remove trailing )Tj
+                    .Replace(@"\)", ")") //unencode parens
+                    .Replace(@"\(", "(")
+                    .Trim()
+                )
+                .ToList();
+            return list;
         }
 
         #endregion
