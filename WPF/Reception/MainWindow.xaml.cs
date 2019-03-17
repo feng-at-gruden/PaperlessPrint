@@ -497,7 +497,7 @@ namespace Reception
                 retry++;
                 if (retry >= Constants.MaxTryConnect)
                 {
-                    MessageBox.Show("签字板连接错误！", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("签字板连接错误，请检查平板端程序是否运行。", "错误", MessageBoxButton.OK, MessageBoxImage.Error);
                     Application.Current.Shutdown();
                     return;
                 }

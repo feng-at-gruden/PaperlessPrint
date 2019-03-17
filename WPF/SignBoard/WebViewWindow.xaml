@@ -1,8 +1,8 @@
 ﻿<Window x:Class="SignBoard.WebViewWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="广告窗口" Height="300" Width="300" WindowState="Maximized" ResizeMode="NoResize" Icon="Content/Images/pen.png" Background="Black" Topmost="False" WindowStyle="None" ShowInTaskbar="False" Closing="Window_Closing" >
+        Title="广告窗口" Height="600" Width="800" WindowState="Maximized" ResizeMode="NoResize" Icon="Content/Images/pen.png" Background="Black" Topmost="False" WindowStyle="None" ShowInTaskbar="False" Closing="Window_Closing" >
     <Grid>
-        <WebBrowser x:Name="WebBrowser1" />
+        <WebBrowser x:Name="WebBrowser1" Margin="0" />
     </Grid>
 </Window>

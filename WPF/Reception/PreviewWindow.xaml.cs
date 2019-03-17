@@ -44,7 +44,8 @@ namespace Reception
 
             if (this.args != null && this.args.Length > 0)
             {
-                currentFileName = this.args[0];
+                currentFileName = System.IO.Path.GetFullPath(this.args[0]);
+
                 pdfReader.LoadPDF(currentFileName);
                 pdfReader.SetZoomLevel(1);
             }
