@@ -62,7 +62,11 @@ namespace SignBoard
         {
             currentPDF = filename;
             if (pdfViewer != null)
+            {
                 pdfViewer.LoadPDF(filename);
+
+            }
+                
         }
 
         public void ClosePDF()

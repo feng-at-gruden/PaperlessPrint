@@ -302,12 +302,28 @@ namespace SignBoard
         {
             if (ContentWindow.PDFPageCount > 1)
             {
+                ShowPagerBtns(true);
                 var enable = ContentWindow.CurrentPageNumber == ContentWindow.PDFPageCount ? Visibility.Visible : Visibility.Hidden;
                 inkCanvas1.SetValue(Canvas.VisibilityProperty, enable);
             }
             else
             {
+                ShowPagerBtns(false);
                 inkCanvas1.SetValue(Canvas.VisibilityProperty, Visibility.Visible);
+            }
+        }
+
+        private void ShowPagerBtns(bool show)
+        {
+            if (show)
+            {
+                this.btnNext.Visibility = System.Windows.Visibility.Visible;
+                this.btnPrevious.Visibility = System.Windows.Visibility.Visible;
+            }
+            else
+            {
+                this.btnNext.Visibility = System.Windows.Visibility.Hidden;
+                this.btnPrevious.Visibility = System.Windows.Visibility.Hidden;
             }
         }
 

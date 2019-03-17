@@ -51,6 +51,9 @@
   <PropertyGroup>
     <StartupObject>Reception.App</StartupObject>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>printer.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="itextsharp, Version=5.5.10.0, Culture=neutral, PublicKeyToken=8354ae6d2174ddca, processorArchitecture=MSIL">
       <HintPath>..\..\packages\iTextSharp.5.5.10\lib\itextsharp.dll</HintPath>
@@ -145,6 +148,7 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Content\Images\app.png" />
+    <Resource Include="printer.ico" />
     <Content Include="WinSCP.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

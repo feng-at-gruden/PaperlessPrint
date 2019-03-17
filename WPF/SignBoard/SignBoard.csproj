@@ -66,7 +66,7 @@
     <SignManifests>true</SignManifests>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Signature.ico</ApplicationIcon>
+    <ApplicationIcon>Content\Images\Signature.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -181,13 +181,18 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\Html\css\style.css" />
+    <Content Include="Content\Html\js\index.js" />
+    <Content Include="Content\Html\js\jquery-1.8.3.min.js" />
     <Content Include="Content\Html\ThankYou.html" />
     <Content Include="Content\Html\Welcome.html" />
+    <Resource Include="Content\Images\pen.ico" />
+    <Resource Include="Content\Images\Signature.ico" />
+    <Resource Include="pen2.ico" />
     <Resource Include="Signature.ico" />
     <Resource Include="Content\Images\remove.png" />
     <Resource Include="Content\Images\accept.png" />
     <Resource Include="Content\Images\info.png" />
-    <Resource Include="Content\Images\pen.png" />
     <Resource Include="Content\Images\back.png" />
     <Resource Include="Content\Images\next.png" />
   </ItemGroup>
